@@ -19,8 +19,10 @@ HRESULT SceneObject::createVertexBuffer(ID3D11Device* device)
     return hr;
 }
 
-SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext)
+SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs)
 {
+    textureSRV = textureSRVs;
+
     constantBuffer.Initialize(device, immediateContext);
     world = DirectX::XMMatrixIdentity();
     DirectX::XMStoreFloat4x4(&constantBuffer.getData().world, world);
@@ -61,6 +63,7 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 
 }
 
+
 void SceneObject::tempUpdate()
 {
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
@@ -74,11 +77,18 @@ void SceneObject::tempUpdate()
     world = DirectX::XMMatrixTranspose(world);
 }
 
+void SceneObject::noMemoryLeak()
+{
+    //textureSRV->Release();
+    vertexBuffer->Release();
+}
+
 void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
 {
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
     constantBuffer.applyData();
     immediateContext->VSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
+    immediateContext->PSSetShaderResources(0, 1, &textureSRV);
 
     UINT stride = sizeof(VertexData);
     UINT offset = 0;

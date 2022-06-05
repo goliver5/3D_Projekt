@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="CreateTextures.cpp" />
     <ClCompile Include="D3D11Helper.cpp" />
     <ClCompile Include="LightCBuffer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferNew.h" />
+    <ClInclude Include="CreateTextures.h" />
     <ClInclude Include="D3D11Helper.h" />
     <ClInclude Include="LightCBuffer.h" />
     <ClInclude Include="objectStruct.h" />

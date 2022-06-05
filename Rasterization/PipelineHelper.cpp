@@ -3,10 +3,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <vector>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+
 
 bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, std::string& vShaderByteCode, ID3D11ComputeShader*& cShader)
 {
@@ -131,7 +129,7 @@ bool CreateVertexBuffer(ID3D11Device* device, ID3D11Buffer*& vertexBuffer)
     return !FAILED(hr);
 }
 
-bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D11ShaderResourceView*& textureSRV)
+bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D11ShaderResourceView*& textureSRV, std::string fileName)
 {
    /* const int width = 472;
     const int height = 472;
@@ -153,41 +151,42 @@ bool CreateTexture(ID3D11Device* device, ID3D11Texture2D*& texture, ID3D11Shader
         }
     }*/
 
-    int width = 472;
-    int height = 472;
-    int comp = 4;
-    int channels = 4;
-    //std::vector<unsigned char> textureData;
-    //textureData.resize(width * height * 4);
-    unsigned char* textureData = stbi_load("beel.png", &width, &height, &comp, channels);
+    //int width = 472;
+    //int height = 472;
+    //int comp = 4;
+    //int channels = 4;
+    ////std::vector<unsigned char> textureData;
+    ////textureData.resize(width * height * 4);
+    //unsigned char* textureData = stbi_load(fileName.c_str(), &width, &height, &comp, channels);
 
-    D3D11_TEXTURE2D_DESC desc;
-    desc.Width = width;
-    desc.Height = height;
-    desc.MipLevels = 1;
-    desc.ArraySize = 1;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.Usage = D3D11_USAGE_IMMUTABLE;
-    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
+    //D3D11_TEXTURE2D_DESC desc;
+    //desc.Width = width;
+    //desc.Height = height;
+    //desc.MipLevels = 1;
+    //desc.ArraySize = 1;
+    //desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    //desc.SampleDesc.Count = 1;
+    //desc.SampleDesc.Quality = 0;
+    //desc.Usage = D3D11_USAGE_IMMUTABLE;
+    //desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    //desc.CPUAccessFlags = 0;
+    //desc.MiscFlags = 0;
 
-    D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = &textureData[0];
-    data.SysMemPitch = width * 4;
-    data.SysMemSlicePitch = 0;
+    //D3D11_SUBRESOURCE_DATA data;
+    //data.pSysMem = &textureData[0];
+    //data.SysMemPitch = width * 4;
+    //data.SysMemSlicePitch = 0;
 
-    if (FAILED(device->CreateTexture2D(&desc, &data, &texture)))
-    {
-        std::cerr << "Failed to create texture!" << std::endl;
-        return false;
-    }
-    HRESULT hr = device->CreateShaderResourceView(texture, nullptr, &textureSRV);
-    
-    stbi_image_free(textureData);
-    return !FAILED(hr);
+    //if (FAILED(device->CreateTexture2D(&desc, &data, &texture)))
+    //{
+    //    std::cerr << "Failed to create texture!" << std::endl;
+    //    return false;
+    //}
+    //HRESULT hr = device->CreateShaderResourceView(texture, nullptr, &textureSRV);
+    //
+    //stbi_image_free(textureData);
+    //return !FAILED(hr);
+    return true;
 }
 
 bool CreateSamplerState(ID3D11Device* device, ID3D11SamplerState*& sampler)
@@ -208,7 +207,7 @@ bool CreateSamplerState(ID3D11Device* device, ID3D11SamplerState*& sampler)
 }
 
 bool SetupPipeline(ID3D11Device* device, ID3D11Buffer*& vertexBuffer, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, ID3D11InputLayout*& inputLayout,
-    ID3D11Texture2D*& texture, ID3D11ShaderResourceView*& textureSRV, ID3D11SamplerState*& sampler, ID3D11ComputeShader*& cShader)
+    ID3D11SamplerState*& sampler, ID3D11ComputeShader*& cShader)
 {
     std::string vShaderByteCode;
     if (!LoadShaders(device, vShader, pShader, vShaderByteCode, cShader))
@@ -229,11 +228,21 @@ bool SetupPipeline(ID3D11Device* device, ID3D11Buffer*& vertexBuffer, ID3D11Vert
         return false;
     }
 
-    if (!CreateTexture(device, texture, textureSRV))
+
+   /* for (int i = 0; i < NROFTEXTURES; i++)
+    {
+        if (!CreateTexture(device, texture, textureSRV, fileName[i]))
+        {
+            std::cerr << "Error creating texture!" << std::endl;
+            return false;
+        }
+    }*/
+
+    /*if (!CreateTexture(device, texture, textureSRV))
     {
         std::cerr << "Error creating texture!" << std::endl;
         return false;
-    }
+    }*/
 
     if (!CreateSamplerState(device, sampler))
     {

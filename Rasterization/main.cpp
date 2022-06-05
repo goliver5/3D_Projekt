@@ -16,10 +16,11 @@
 #include "SceneObject.h"
 #include <chrono>
 #include "Camera.h"
+#include "CreateTextures.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
-	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout, ID3D11Buffer* vertexBuffer, 
-	ID3D11ShaderResourceView* textureSRV, ID3D11SamplerState* sampler, 
+	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
+	ID3D11Buffer* vertexBuffer, ID3D11SamplerState* sampler, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene)
 {
@@ -40,7 +41,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->PSSetShader(pShader, nullptr, 0);
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 
-	immediateContext->PSSetShaderResources(0, 1, &textureSRV);
+	//immediateContext->PSSetShaderResources(0, 1, &textureSRV);
 	immediateContext->PSSetSamplers(0, 1, &sampler);
 	tempObj.draw(immediateContext);
 
@@ -88,10 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ID3D11PixelShader* pShader;//			released
 	ID3D11InputLayout* inputLayout;//		released
 	ID3D11Buffer* vertexBuffer;//			released
-	//ID3D11Buffer* constantBuffer;//			released
 
-	ID3D11Texture2D* texture;//				released
-	ID3D11ShaderResourceView* textureSRV;//	released
 	ID3D11SamplerState* sampler;//			released
 
 	ID3D11ComputeShader *cShader;//			released
@@ -104,6 +102,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ConstantBufferNew<VPMatrix> VPcBuffer;
 	Camera camera;
 
+	static const int NROFTEXTURES = 2;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[2];
+	ID3D11ShaderResourceView* textureSRVs[NROFTEXTURES];
+	//std::vector<ID3D11ShaderResourceView*> textureSRVs;
 
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
 	{
@@ -111,7 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, texture, textureSRV, sampler, cShader))
+	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader))
 	{
 		std::cerr << "Failed to setup pipeline!" << std::endl;
 		return -1;
@@ -123,7 +125,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	SceneObject tempObject(device, immediateContext);
+	if (!SetupTextures(device, textureSRVs))
+	{
+		return -1;
+	}
+
+	SceneObject tempObject(device, immediateContext, textureSRVs[1]);
 	std::vector<SceneObject> testScene;
 
 	constantBufferNew.Initialize(device, immediateContext);
@@ -147,7 +154,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			if (GetAsyncKeyState('K'))
 			{
-				testScene.push_back(SceneObject(device, immediateContext));
+				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0]));
 			}
 			for (int i = 0; i < testScene.size(); i++)
 			{
@@ -157,23 +164,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 		//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
-		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, textureSRV, sampler,
+		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
 			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene);
 		swapChain->Present(0, 0);
 	}
 
 	cShader->Release();
 	backBufferUAV->Release();
-
-	texture->Release();
-	textureSRV->Release();
 	sampler->Release();
-	//cShader->Release();
-	//backBufferUAV->Release();
+
 	lightBuffer->Release();
 
+	for (int i = 0; i < NROFTEXTURES; i++)
+	{
+		textureSRVs[i]->Release();
+	}
+	for (int i = 0; i < testScene.size(); i++)
+	{
+		testScene[i].noMemoryLeak();
+	}
+	tempObject.noMemoryLeak();
+
 	vertexBuffer->Release();
-	//constantBuffer->Release();
 	inputLayout->Release();
 	pShader->Release();
 	vShader->Release();
