@@ -28,7 +28,9 @@ protected:
 	HRESULT createVertexBuffer(ID3D11Device* device);
 public:
 	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs);
+
 	void tempUpdate();
 	void noMemoryLeak();
+
 	void draw(ID3D11DeviceContext*& immediateContext);
 };

@@ -63,7 +63,6 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 
 }
 
-
 void SceneObject::tempUpdate()
 {
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
