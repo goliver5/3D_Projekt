@@ -147,6 +147,7 @@
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="CreateTextures.cpp" />
     <ClCompile Include="D3D11Helper.cpp" />
+    <ClCompile Include="DefferedRendering.cpp" />
     <ClCompile Include="LightCBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OBJParser.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="ConstantBufferNew.h" />
     <ClInclude Include="CreateTextures.h" />
     <ClInclude Include="D3D11Helper.h" />
+    <ClInclude Include="DefferedRendering.h" />
     <ClInclude Include="LightCBuffer.h" />
     <ClInclude Include="objectStruct.h" />
     <ClInclude Include="OBJParser.h" />

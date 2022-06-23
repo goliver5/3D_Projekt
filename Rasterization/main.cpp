@@ -17,6 +17,7 @@
 #include <chrono>
 #include "Camera.h"
 #include "CreateTextures.h"
+#include "DefferedRendering.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -106,6 +107,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[2];
 	ID3D11ShaderResourceView* textureSRVs[NROFTEXTURES];
 	//std::vector<ID3D11ShaderResourceView*> textureSRVs;
+
+	DefferedRendering* wow = new DefferedRendering(WIDTH, HEIGHT);
 
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
 	{
