@@ -110,11 +110,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	DefferedRendering* wow = new DefferedRendering(WIDTH, HEIGHT);
 
+	
+
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
 	{
 		std::cerr << "Failed to setup d3d11!" << std::endl;
 		return -1;
 	}
+
+	wow->initGBuffers(device);
 
 	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader))
 	{
