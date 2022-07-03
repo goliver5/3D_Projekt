@@ -19,16 +19,19 @@ struct PixelShaderInput
 
 struct PixelShaderOutput
 {
-	float3 Normal : SV_Target0;
-	float4 Position : SV_Target1;
+	float4 Texture : SV_Target0;
+	float4 Normal : SV_Target1;
+	float4 Position : SV_Target2;
 };
 
 PixelShaderOutput main(PixelShaderInput input)
 {
 	PixelShaderOutput output;
 
+	output.Texture = testTexture.Sample(testSampler, input.uv);
+
 	output.Position = input.position;
-	output.Normal = input.normal;
+	output.Normal = float4(input.normal, 1.0f);
 
 	return output;
 }

@@ -17,5 +17,6 @@ public:
 	DefferedRendering(UINT windowWidth, UINT windowHeight);
 
 	bool initGBuffers(ID3D11Device* device);
-	bool firstPass(ID3D11Device* device, ID3D11DeviceContext*& immediateContext);
+	void firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView);
+	void lightPass(ID3D11DeviceContext*& immediateContext);
 };

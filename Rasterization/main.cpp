@@ -23,7 +23,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
 	ID3D11Buffer* vertexBuffer, ID3D11SamplerState* sampler, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
-	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene)
+	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene,
+	DefferedRendering*& defferedRenderer)
 {
 	float clearColour[4]{ 0, 0, 0, 0 };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -40,9 +41,13 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->RSSetViewports(1, &viewport);
 	immediateContext->PSSetShader(pShader, nullptr, 0);
-	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 
-	//immediateContext->PSSetShaderResources(0, 1, &textureSRV);
+	//ta väck för forward rendering och måste ta väck defferedrenderer
+	//immediateContext->OMSetRenderTargets(1, &rtv, dsView);
+
+	// deferred rendering börjar första pass (light pass)
+	defferedRenderer->firstPass(immediateContext, dsView);
+
 	immediateContext->PSSetSamplers(0, 1, &sampler);
 	tempObj.draw(immediateContext);
 
@@ -52,10 +57,12 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	}
 
 	ID3D11RenderTargetView* nullRtv = nullptr;
+	
 	immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
 	immediateContext->CSSetShader(cShader, nullptr, 0);
+	immediateContext->CSSetSamplers(0, 1, &sampler);
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
-
+	defferedRenderer->lightPass(immediateContext);
 	immediateContext->Dispatch(32, 32, 1);
 
 	ID3D11UnorderedAccessView* nullUav = nullptr;
@@ -172,7 +179,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene);
+			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow);
 		swapChain->Present(0, 0);
 	}
 

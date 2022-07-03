@@ -51,7 +51,17 @@ bool DefferedRendering::initGBuffers(ID3D11Device* device)
 	return false;
 }
 
-bool DefferedRendering::firstPass(ID3D11Device* device, ID3D11DeviceContext*& immediateContext)
+void DefferedRendering::firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView)
 {
-	return false;
+	immediateContext->OMSetRenderTargets(GBUFFER_COUNT, gBufferRTV, dsView);
+	float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
+	for (int i = 0; i < GBUFFER_COUNT; i++)
+	{
+		immediateContext->ClearRenderTargetView(gBufferRTV[i], clearColor);
+	}
+}
+
+void DefferedRendering::lightPass(ID3D11DeviceContext*& immediateContext)
+{
+	immediateContext->CSSetShaderResources(0, GBUFFER_COUNT, gBufferSRV);
 }
