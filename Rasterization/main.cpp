@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "CreateTextures.h"
 #include "DefferedRendering.h"
+#include "ParticleSystem.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -60,13 +61,12 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	
 	immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
 	immediateContext->CSSetShader(cShader, nullptr, 0);
-	immediateContext->CSSetSamplers(0, 1, &sampler);
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 	defferedRenderer->lightPass(immediateContext);
 	immediateContext->Dispatch(32, 32, 1);
 
-	ID3D11UnorderedAccessView* nullUav = nullptr;
-	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+	/*ID3D11UnorderedAccessView* nullUav = nullptr;
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);*/
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -93,6 +93,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ID3D11Texture2D* dsTexture;//			released
 	ID3D11DepthStencilView* dsView;//		released
 	D3D11_VIEWPORT viewport;
+	ID3D11GeometryShader* geometryShader;
 	ID3D11VertexShader* vShader;//			released
 	ID3D11PixelShader* pShader;//			released
 	ID3D11InputLayout* inputLayout;//		released
@@ -116,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//std::vector<ID3D11ShaderResourceView*> textureSRVs;
 
 	DefferedRendering* wow = new DefferedRendering(WIDTH, HEIGHT);
-
+	ParticleSystem wiw;
 	
 
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
@@ -125,9 +126,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
+	wiw.initiateParticleSystem(device);
 	wow->initGBuffers(device);
 
-	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader))
+	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader, geometryShader))
 	{
 		std::cerr << "Failed to setup pipeline!" << std::endl;
 		return -1;
