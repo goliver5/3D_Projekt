@@ -57,6 +57,9 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 		testScene[i].draw(immediateContext);
 	}
 
+	//clear innan
+	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
+
 	//deferred rendering andra pass för ljuset
 	ID3D11RenderTargetView* nullRtv = nullptr;
 	immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
