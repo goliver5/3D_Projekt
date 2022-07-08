@@ -26,8 +26,9 @@ private:
 public:
 
 	ParticleSystem();
+	~ParticleSystem();
 
 	bool initiateParticleSystem(ID3D11Device* device);
 
-	void draw();
+	void draw(ID3D11DeviceContext*& immediateContext);
 };

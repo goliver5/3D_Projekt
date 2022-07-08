@@ -5,6 +5,16 @@ DefferedRendering::DefferedRendering(UINT windowWidth, UINT windowHeight)
 {
 }
 
+DefferedRendering::~DefferedRendering()
+{
+	for (int i = 0; i < GBUFFER_COUNT; i++)
+	{
+		gBufferRTV[i]->Release();
+		gBufferSRV[i]->Release();
+		textures[i]->Release();
+	}
+}
+
 bool DefferedRendering::initGBuffers(ID3D11Device* device)
 {
 	//börjar med texturer

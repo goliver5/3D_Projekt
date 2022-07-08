@@ -18,11 +18,17 @@ ParticleSystem::ParticleSystem()
 	
 }
 
+ParticleSystem::~ParticleSystem()
+{
+	uav->Release();
+	vBuffer->Release();
+}
+
 bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 {
 
 	D3D11_BUFFER_DESC bufferDesc = {
-	bufferDesc.ByteWidth = sizeof(float[3])* this->particles.size(), //byte storlek
+	bufferDesc.ByteWidth = sizeof(Particles)* this->particles.size(), //byte storlek
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT,
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_UNORDERED_ACCESS,
 	bufferDesc.CPUAccessFlags = 0,
@@ -58,4 +64,18 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 
 
 	return true;
+}
+
+void ParticleSystem::draw(ID3D11DeviceContext*& immediateContext)
+{
+	UINT stride = sizeof(particles);
+	UINT offset = 0;
+	int size = particles.size();
+	immediateContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	immediateContext->CSGetUnorderedAccessViews(0, 1, &uav);
+
+	immediateContext->Draw(size, 0);
+
 }
