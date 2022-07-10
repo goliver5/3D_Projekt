@@ -7,7 +7,7 @@
 
 
 bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, std::string& vShaderByteCode, ID3D11ComputeShader*& cShader, ID3D11GeometryShader*& geometryShader,
-    ID3D11ComputeShader*& particleComputeShader)
+    ID3D11ComputeShader*& particleComputeShader, ID3D11PixelShader*& pixelParticleShader)
 {
     std::string shaderData;
     std::ifstream reader;
@@ -29,7 +29,7 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
         std::cerr << "Failed to create vertex shader!" << std::endl;
         return false;
     }
-
+    //********************
     vShaderByteCode = shaderData;
     shaderData.clear();
     reader.close();
@@ -39,6 +39,8 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
         std::cerr << "Could not open PS file!" << std::endl;
         return false;
     }
+
+    //********************
     shaderData.clear();
     reader.seekg(0, std::ios::end);
     shaderData.reserve(static_cast<unsigned int>(reader.tellg()));
@@ -52,7 +54,7 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
         return false;
     }
 
-
+    //*****************
 
     shaderData.clear();
     reader.close();
@@ -76,7 +78,7 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
         return false;
     }
 
-
+    //************
     shaderData.clear();
     reader.close();
     reader.open("../x64/Debug/particleComputeShader.cso", std::ios::binary | std::ios::ate);
@@ -95,9 +97,33 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
     hr = device->CreateComputeShader(shaderData.c_str(), shaderData.length(), nullptr, &particleComputeShader);
     if (FAILED(hr))
     {
-        std::cerr << "Failed to create Geometry shader!" << std::endl;
+        std::cerr << "Failed to create particleComputeShader shader!" << std::endl;
         return false;
     }
+    //***********************
+
+    shaderData.clear();
+    reader.close();
+    reader.open("../x64/Debug/PixelShader.cso", std::ios::binary | std::ios::ate);
+    if (!reader.is_open())
+    {
+        std::cerr << "Could not open GS file!" << std::endl;
+        return false;
+    }
+
+    reader.seekg(0, std::ios::end);
+    shaderData.reserve(static_cast<unsigned int>(reader.tellg()));
+    reader.seekg(0, std::ios::beg);
+
+    shaderData.assign((std::istreambuf_iterator<char>(reader)), std::istreambuf_iterator<char>());
+
+    hr = device->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pixelParticleShader);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to create particleComputeShader shader!" << std::endl;
+        return false;
+    }
+    //***********************
 
     shaderData.clear();
     reader.close();
@@ -254,10 +280,11 @@ bool CreateSamplerState(ID3D11Device* device, ID3D11SamplerState*& sampler)
 }
 
 bool SetupPipeline(ID3D11Device* device, ID3D11Buffer*& vertexBuffer, ID3D11VertexShader*& vShader, ID3D11PixelShader*& pShader, ID3D11InputLayout*& inputLayout,
-    ID3D11SamplerState*& sampler, ID3D11ComputeShader*& cShader, ID3D11GeometryShader*& geometryShader, ID3D11ComputeShader *& particleComputeShader)
+    ID3D11SamplerState*& sampler, ID3D11ComputeShader*& cShader, ID3D11GeometryShader*& geometryShader, ID3D11ComputeShader *& particleComputeShader,
+    ID3D11PixelShader*& pixelParticleShader)
 {
     std::string vShaderByteCode;
-    if (!LoadShaders(device, vShader, pShader, vShaderByteCode, cShader, geometryShader, particleComputeShader))
+    if (!LoadShaders(device, vShader, pShader, vShaderByteCode, cShader, geometryShader, particleComputeShader, pixelParticleShader))
     {
         std::cerr << "Error loading shaders!" << std::endl;
         return false;

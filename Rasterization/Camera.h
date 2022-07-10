@@ -34,4 +34,7 @@ public:
 	bool initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immediateContext, ConstantBufferNew<VPMatrix>& cBuffer);
 	void update();
 	void setVSBuffer(ID3D11DeviceContext*& immediateContext);
+	void setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext);
+
+	DirectX::XMVECTOR getcameraPosition();
 };

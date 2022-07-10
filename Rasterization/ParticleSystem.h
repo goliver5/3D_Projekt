@@ -1,6 +1,8 @@
 #pragma once
 #include <d3d11.h>
 #include <vector>
+#include "Camera.h"
+#include "ConstantBufferNew.h"
 
 struct Particles
 {
@@ -23,6 +25,10 @@ private:
 	ID3D11UnorderedAccessView* uav;
 	ID3D11Buffer* vBuffer;
 
+	//kamerans position
+	ConstantBufferNew<position> constantBuffer;
+	//identites matrisen
+	ConstantBufferNew<WMatrix> identityMatrix;
 public:
 
 	ParticleSystem();
@@ -30,5 +36,5 @@ public:
 
 	bool initiateParticleSystem(ID3D11Device* device);
 
-	void draw(ID3D11DeviceContext*& immediateContext);
+	void draw(ID3D11DeviceContext*& immediateContext, Camera& camera);
 };

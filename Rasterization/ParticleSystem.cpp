@@ -62,19 +62,28 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 
 	hr = device->CreateUnorderedAccessView(vBuffer, &uavDesc, &uav);
 
+	DirectX::XMMATRIX identity = DirectX::XMMatrixIdentity();
+	identity = DirectX::XMMatrixIdentity();
+	DirectX::XMStoreFloat4x4(&identityMatrix.getData().world, identity);
+
 
 	return true;
 }
 
-void ParticleSystem::draw(ID3D11DeviceContext*& immediateContext)
+void ParticleSystem::draw(ID3D11DeviceContext*& immediateContext, Camera& camera)
 {
 	UINT stride = sizeof(particles);
 	UINT offset = 0;
 	int size = particles.size();
 	immediateContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	
+	DirectX::XMStoreFloat3(&constantBuffer.getData().position, camera.getcameraPosition());
 
 	immediateContext->CSGetUnorderedAccessViews(0, 1, &uav);
+	immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());
+	immediateContext->GSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
 
 	immediateContext->Draw(size, 0);
 

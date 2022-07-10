@@ -63,9 +63,23 @@ void Camera::update()
 	viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
 	XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
 	VPcBuffer->applyData();
+
+	//kanske behövs kolla senare
+	//DirectX::XMStoreFloat3(&pos, eyePosition);
+
 }
 
 void Camera::setVSBuffer(ID3D11DeviceContext*& immediateContext)
 {
 	immediateContext->VSSetConstantBuffers(1, 1, this->VPcBuffer->getReferenceOf());
+}
+
+void Camera::setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext)
+{
+	immediateContext->GSSetConstantBuffers(0, 1, this->VPcBuffer->getReferenceOf());
+}
+
+DirectX::XMVECTOR Camera::getcameraPosition()
+{
+	return position;
 }

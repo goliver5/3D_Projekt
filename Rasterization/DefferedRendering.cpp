@@ -7,6 +7,16 @@ DefferedRendering::DefferedRendering(UINT windowWidth, UINT windowHeight)
 
 DefferedRendering::~DefferedRendering()
 {
+	//for (int i = 0; i < GBUFFER_COUNT; i++)
+	//{
+	//	gBufferRTV[i]->Release();
+	//	gBufferSRV[i]->Release();
+	//	textures[i]->Release();
+	//}
+}
+
+void DefferedRendering::noMoreMemoryLeaks()
+{
 	for (int i = 0; i < GBUFFER_COUNT; i++)
 	{
 		gBufferRTV[i]->Release();
@@ -58,7 +68,7 @@ bool DefferedRendering::initGBuffers(ID3D11Device* device)
 	}
 	
 
-	return false;
+	return true;
 }
 
 void DefferedRendering::firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView)

@@ -25,7 +25,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11Buffer* vertexBuffer, ID3D11SamplerState* sampler, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene,
-	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader)
+	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
+	ID3D11PixelShader*& pixelParticleShader)
 {
 	float clearColour[4]{ 0, 0, 0, 0 };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -57,6 +58,12 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 		testScene[i].draw(immediateContext);
 	}
 
+	//partikle systemets draw call
+	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+	particleSystem.draw(immediateContext, camera);
+
+	//immediateContext->CSSetShader()
+
 	//clear innan
 	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
 
@@ -70,12 +77,6 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 	/*ID3D11UnorderedAccessView* nullUav = nullptr;
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);*/
-
-	//partikle systemets draw call
-	
-	//particleSystem.draw(immediateContext);
-	
-	//immediateContext->CSSetShader()
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -105,6 +106,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ID3D11GeometryShader* geometryShader;//				released
 	ID3D11VertexShader* vShader;//						released
 	ID3D11PixelShader* pShader;//						released
+	ID3D11PixelShader* pixelParticleShader;//			released
 	ID3D11InputLayout* inputLayout;//					released
 	ID3D11Buffer* vertexBuffer;//						released
 
@@ -139,7 +141,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	particleSystem.initiateParticleSystem(device);
 	wow->initGBuffers(device);
 
-	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader, geometryShader, particleComputeShader))
+	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader, geometryShader, particleComputeShader, pixelParticleShader))
 	{
 		std::cerr << "Failed to setup pipeline!" << std::endl;
 		return -1;
@@ -191,7 +193,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader);
+			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader);
 		swapChain->Present(0, 0);
 	}
 
@@ -201,6 +203,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	lightBuffer->Release();
 
+	wow->noMoreMemoryLeaks();
 	delete wow;
 
 	for (int i = 0; i < NROFTEXTURES; i++)
@@ -211,8 +214,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	{
 		testScene[i].noMemoryLeak();
 	}
-	tempObject.noMemoryLeak();
 
+	
+	tempObject.noMemoryLeak();
+	pixelParticleShader->Release();
 	vertexBuffer->Release();
 	inputLayout->Release();
 	pShader->Release();
@@ -224,6 +229,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	immediateContext->Release();
 	device->Release();
 	geometryShader->Release();
+	particleComputeShader->Release();
 
 
 

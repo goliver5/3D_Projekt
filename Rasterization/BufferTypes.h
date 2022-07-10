@@ -22,3 +22,9 @@ struct WMatrix
 {
 	DirectX::XMFLOAT4X4 world;
 };
+
+struct position
+{
+	DirectX::XMFLOAT3 position;
+	float padding;
+};

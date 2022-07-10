@@ -17,6 +17,8 @@ public:
 	DefferedRendering(UINT windowWidth, UINT windowHeight);
 	~DefferedRendering();
 
+	void noMoreMemoryLeaks();
+
 	bool initGBuffers(ID3D11Device* device);
 	void firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView);
 	void lightPass(ID3D11DeviceContext*& immediateContext);
