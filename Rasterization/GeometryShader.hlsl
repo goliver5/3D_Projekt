@@ -12,9 +12,6 @@ cbuffer cameraBuf : register(b1)
 struct VertexShaderOutput
 {
 	float4 position : SV_POSITION;
-	float3 worldPos : WORLD_POS;
-	float3 normal : NORMAL;
-	float2 uv : UV;
 };
 
 struct GeometryShaderOutput
@@ -28,22 +25,27 @@ void main(point VertexShaderOutput input[1], inout TriangleStream<GeometryShader
 	
 	float3 cameraForwardVector = input[0].position - float4(cameraPosition, 0.0f);
 
+	cameraForwardVector = float3(0.0f, 0.0f, 1.0f);
+	
 	const static float SIZE = 0.25f;
-	float3 up = float3(0.0f, -1.0f, 0.0f);
+	float3 up = float3(0.0f, 1.0f, 0.0f);
 	float3 right = cross(cameraForwardVector, up);
 	
 	float3 topLeft = input[0].position - right * SIZE + up * SIZE;
 	float3 topRight = input[0].position + right * SIZE + up * SIZE;
 	float3 bottomRight = input[0].position + right * SIZE - up * SIZE;
+	float3 bottomLeft = input[0].position - right * SIZE - up * SIZE;
 	
-	GeometryShaderOutput outputs[3] =
+	GeometryShaderOutput outputs[4] =
 	{
-		mul(viewProjectionMatrix, float4(topLeft, 1.0f))
-		, mul(viewProjectionMatrix, float4(topRight, 1.0f))
-		, mul(viewProjectionMatrix, float4(bottomRight, 1.0f))
+		mul(float4(bottomLeft, 1.0f), viewProjectionMatrix)
+		, mul(float4(bottomRight, 1.0f), viewProjectionMatrix)
+		, mul(float4(topLeft, 1.0f), viewProjectionMatrix)
+		, mul(float4(topRight, 1.0f), viewProjectionMatrix)
 	};
 	
 	outputStream.Append(outputs[0]);
 	outputStream.Append(outputs[1]);
 	outputStream.Append(outputs[2]);
+	outputStream.Append(outputs[3]);
 }

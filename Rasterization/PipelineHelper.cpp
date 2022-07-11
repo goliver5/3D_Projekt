@@ -146,7 +146,8 @@ bool LoadShaders(ID3D11Device* device, ID3D11VertexShader*& vShader, ID3D11Pixel
         std::cerr << "Failed to create Geometry shader!" << std::endl;
         return false;
     }
-
+    shaderData.clear();
+    reader.close();
 
     return true;
 }

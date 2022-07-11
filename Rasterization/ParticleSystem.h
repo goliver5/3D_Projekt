@@ -3,6 +3,9 @@
 #include <vector>
 #include "Camera.h"
 #include "ConstantBufferNew.h"
+#include <string>
+#include <fstream>
+#include <iostream>
 
 struct Particles
 {
@@ -17,6 +20,8 @@ struct Particles
 	}
 };
 
+const UINT NUMBER_OF_PARTICLES = 1000;
+
 class ParticleSystem
 {
 private:
@@ -24,11 +29,18 @@ private:
 	std::vector<Particles> particles;
 	ID3D11UnorderedAccessView* uav;
 	ID3D11Buffer* vBuffer;
+	ID3D11VertexShader* particleVertexShader;
+	ID3D11InputLayout* particleInputLayout;
 
 	//kamerans position
 	ConstantBufferNew<position> constantBuffer;
 	//identites matrisen
 	ConstantBufferNew<WMatrix> identityMatrix;
+protected:
+	HRESULT CreateInputLayout(ID3D11Device* device, const std::string& vShaderByteCode);
+	bool initiateVertexShader(ID3D11Device* device, std::string& vShaderByteCode);
+	
+
 public:
 
 	ParticleSystem();

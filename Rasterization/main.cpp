@@ -26,7 +26,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
-	ID3D11PixelShader*& pixelParticleShader)
+	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader)
 {
 	float clearColour[4]{ 0, 0, 0, 0 };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -58,14 +58,16 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 		testScene[i].draw(immediateContext);
 	}
 
-	//partikle systemets draw call
-	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
-	particleSystem.draw(immediateContext, camera);
-
 	//immediateContext->CSSetShader()
 
 	//clear innan
 	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+	//partikle systemets draw call
+	immediateContext->GSSetShader(geometryShader, nullptr, 0);
+	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
+	particleSystem.draw(immediateContext, camera);
 
 	//deferred rendering andra pass för ljuset
 	ID3D11RenderTargetView* nullRtv = nullptr;
@@ -138,7 +140,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	particleSystem.initiateParticleSystem(device);
+	if (!particleSystem.initiateParticleSystem(device))
+	{
+		std::cerr << "Failed to Particle System!" << std::endl;
+		return -1;
+	}
+
 	wow->initGBuffers(device);
 
 	if (!SetupPipeline(device, vertexBuffer, vShader, pShader, inputLayout, sampler, cShader, geometryShader, particleComputeShader, pixelParticleShader))
@@ -193,7 +200,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader);
+			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+			geometryShader);
 		swapChain->Present(0, 0);
 	}
 
