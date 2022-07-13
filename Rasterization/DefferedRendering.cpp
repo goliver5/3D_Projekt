@@ -71,6 +71,15 @@ bool DefferedRendering::initGBuffers(ID3D11Device* device)
 	return true;
 }
 
+void DefferedRendering::clearRenderTargets(ID3D11DeviceContext* immediateContext)
+{
+	float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
+	for (int i = 0; i < GBUFFER_COUNT; i++)
+	{
+		immediateContext->ClearRenderTargetView(gBufferRTV[i], clearColor);
+	}
+}
+
 void DefferedRendering::firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView)
 {
 	immediateContext->OMSetRenderTargets(GBUFFER_COUNT, gBufferRTV, dsView);

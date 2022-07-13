@@ -3,18 +3,24 @@
 ParticleSystem::ParticleSystem()
 {
 	//20 partiklar
-	float temp = 0.1;
+	//float temp = 0.1;
+	//for (int i = 0; i < NUMBER_OF_PARTICLES; i++)
+	//{
+	//	std::vector<float> particlePositions;
+	//	particlePositions.push_back((float)cos(i + 1) / (float)NUMBER_OF_PARTICLES);//x
+	//	particlePositions.push_back(5.0f);//y
+	//	particlePositions.push_back((float)sin(i + 1) / (float)NUMBER_OF_PARTICLES);//z
+	//	//temp *= i;
+
+	//	//particles.push_back(particlePositions);
+
+	//	//temp = temp + 0.01;
+	//	particles.push_back(particlePositions);
+	//}
+
 	for (int i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
-		std::vector<float> particlePositions;
-		particlePositions.push_back(temp);//x
-		particlePositions.push_back(temp);//y
-		particlePositions.push_back(temp);//z
-		temp *= i;
-
-		particles.push_back(particlePositions);
-
-		temp = temp + 0.01;
+		particles.push_back({ (float)cos(i + 1) / (float)NUMBER_OF_PARTICLES, 2.0f, (float)sin(i + 1) / (float)NUMBER_OF_PARTICLES });
 	}
 	
 }
@@ -23,10 +29,11 @@ HRESULT ParticleSystem::CreateInputLayout(ID3D11Device* device, const std::strin
 {
 	D3D11_INPUT_ELEMENT_DESC inputDesc[1] =
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		//{"COLOR", 0, DXGI_FORMAT_R32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	HRESULT hr = device->CreateInputLayout(inputDesc, _countof(inputDesc), vShaderByteCode.c_str(), vShaderByteCode.length(), &particleInputLayout);
+	HRESULT hr = device->CreateInputLayout(inputDesc, std::size(inputDesc), vShaderByteCode.c_str(), vShaderByteCode.length(), &particleInputLayout);
 
 	return !FAILED(hr);
 }
@@ -66,7 +73,7 @@ ParticleSystem::~ParticleSystem()
 	vBuffer->Release();
 }
 
-bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
+bool ParticleSystem::initiateParticleSystem(ID3D11Device* device, ID3D11DeviceContext*& immediateContext)
 {
 	std::string vShaderByteCode;
 
@@ -81,7 +88,7 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 	}
 
 	D3D11_BUFFER_DESC bufferDesc = {
-	bufferDesc.ByteWidth = sizeof(float[3])* this->particles.size(), //byte storlek
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT3)* this->particles.size(), //byte storlek
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT,
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_UNORDERED_ACCESS,
 	bufferDesc.CPUAccessFlags = 0,
@@ -95,7 +102,7 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 
 	uavDesc.Buffer = {
 	uavDesc.Buffer.FirstElement = 0,
-	uavDesc.Buffer.NumElements = std::size(particles) * 3,//hur många partiklar
+	uavDesc.Buffer.NumElements = particles.size() * 3,//hur många partiklar
 	uavDesc.Buffer.Flags = 0
 	}
 	};
@@ -112,34 +119,54 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device)
 	hr = device->CreateUnorderedAccessView(vBuffer, &uavDesc, &uav);
 	if (FAILED(hr))	return false;
 
+	identityMatrix.Initialize(device, immediateContext);
+	cameraBuffer.Initialize(device, immediateContext);
+
 	DirectX::XMMATRIX identity = DirectX::XMMatrixIdentity();
 	identity = DirectX::XMMatrixIdentity();
 	DirectX::XMStoreFloat4x4(&identityMatrix.getData().world, identity);
 
+	particleInfo.Initialize(device, immediateContext);
 
+	identityMatrix.applyData();
+	cameraBuffer.applyData();
 
 	return true;
 }
 
-void ParticleSystem::draw(ID3D11DeviceContext*& immediateContext, Camera& camera)
+void ParticleSystem::updateParticleInformation()
 {
-	UINT stride = sizeof(Particles);
+	particleInfo.getData().time += (1.0f / 120.0f);
+	particleInfo.applyData();
+}
+
+void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
+{
+	UINT stride = sizeof(DirectX::XMFLOAT3);
 	UINT offset = 0;
 	int size = particles.size();
-	immediateContext->VSSetShader(particleVertexShader, nullptr, 0);
-	immediateContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
 	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	immediateContext->IASetInputLayout(particleInputLayout);
+	immediateContext->VSSetShader(particleVertexShader, nullptr, 0);
+	immediateContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
 
 	//immediateContext->GSSetShader()
-	DirectX::XMStoreFloat3(&constantBuffer.getData().position, camera.getcameraPosition());
+	DirectX::XMStoreFloat3(&cameraBuffer.getData().position, camera.getcameraPosition());
+	cameraBuffer.applyData();
 
-	immediateContext->CSSetUnorderedAccessViews(0, 1, &uav,nullptr);
-	//immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());
-	immediateContext->GSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
+	immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());
+	camera.setGSViewProjectionBuffer(immediateContext);
+	immediateContext->GSSetConstantBuffers(1, 1, cameraBuffer.getReferenceOf());
 
 	immediateContext->Draw(size, 0);
 	immediateContext->GSSetShader(nullptr, nullptr, 0);
+
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	immediateContext->CSSetConstantBuffers(0, 1, particleInfo.getReferenceOf());
+
+	updateParticleInformation();
+	
+	immediateContext->Dispatch(50, 1, 1);
 
 }
 

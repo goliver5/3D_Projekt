@@ -19,7 +19,7 @@ struct GeometryShaderOutput
 	float4 pos : SV_POSITION;
 };
 
-[maxvertexcount(3)]
+[maxvertexcount(4)]
 void main(point VertexShaderOutput input[1], inout TriangleStream<GeometryShaderOutput> outputStream)
 {
 	
@@ -38,10 +38,10 @@ void main(point VertexShaderOutput input[1], inout TriangleStream<GeometryShader
 	
 	GeometryShaderOutput outputs[4] =
 	{
-		mul(float4(bottomLeft, 1.0f), viewProjectionMatrix)
-		, mul(float4(bottomRight, 1.0f), viewProjectionMatrix)
-		, mul(float4(topLeft, 1.0f), viewProjectionMatrix)
-		, mul(float4(topRight, 1.0f), viewProjectionMatrix)
+		mul(float4(bottomLeft, 1.0f), viewProjectionMatrix),
+		mul(float4(bottomRight, 1.0f), viewProjectionMatrix),
+		mul(float4(topLeft, 1.0f), viewProjectionMatrix),
+		mul(float4(topRight, 1.0f), viewProjectionMatrix)
 	};
 	
 	outputStream.Append(outputs[0]);

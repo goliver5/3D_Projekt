@@ -36,6 +36,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	UINT offset = 0;
 
 	camera.setVSBuffer(immediateContext);
+
+
 	immediateContext->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
 
 	immediateContext->IASetInputLayout(inputLayout);
@@ -51,7 +53,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	immediateContext->PSSetSamplers(0, 1, &sampler);
-	tempObj.draw(immediateContext);
+	//tempObj.draw(immediateContext);
 
 	for (int i = 0; i < testScene.size(); i++)
 	{
@@ -60,14 +62,11 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 	//immediateContext->CSSetShader()
 
+
 	//clear innan
 	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
 
-	//partikle systemets draw call
-	immediateContext->GSSetShader(geometryShader, nullptr, 0);
-	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
-	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
-	particleSystem.draw(immediateContext, camera);
+
 
 	//deferred rendering andra pass för ljuset
 	ID3D11RenderTargetView* nullRtv = nullptr;
@@ -76,9 +75,18 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 	defferedRenderer->lightPass(immediateContext);
 	immediateContext->Dispatch(32, 32, 1);
+	/*defferedRenderer->clearRenderTargets(immediateContext);*/
 
 	/*ID3D11UnorderedAccessView* nullUav = nullptr;
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);*/
+
+	//partikle systemets draw call
+	immediateContext->GSSetShader(geometryShader, nullptr, 0);
+	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+	immediateContext->CSSetShader(particleComputeShader, nullptr, 0);
+	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
+	particleSystem.draw(immediateContext, camera);
+
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -140,7 +148,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	if (!particleSystem.initiateParticleSystem(device))
+	if (!particleSystem.initiateParticleSystem(device, immediateContext))
 	{
 		std::cerr << "Failed to Particle System!" << std::endl;
 		return -1;
@@ -195,13 +203,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			{
 				testScene[i].tempUpdate();
 			}
-		}
-		lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
-		//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
+			lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
+			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
-		Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-			lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-			geometryShader);
+			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
+				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+				geometryShader);
+		}
+		
 		swapChain->Present(0, 0);
 	}
 

@@ -76,7 +76,7 @@ void Camera::setVSBuffer(ID3D11DeviceContext*& immediateContext)
 
 void Camera::setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext)
 {
-	immediateContext->GSSetConstantBuffers(0, 1, this->VPcBuffer->getReferenceOf());
+	immediateContext->GSSetConstantBuffers(0, 1, VPcBuffer->getReferenceOf());
 }
 
 DirectX::XMVECTOR Camera::getcameraPosition()
