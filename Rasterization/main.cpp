@@ -195,7 +195,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			tempObject.tempUpdate();
 			camera.update(immediateContext);
 
-			if (GetAsyncKeyState('K'))
+			if (GetAsyncKeyState('R'))
 			{
 				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0]));
 			}

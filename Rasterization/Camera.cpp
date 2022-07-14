@@ -5,7 +5,7 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
+	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
 	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.1f, 0.0f);
 	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -39,22 +39,25 @@ void Camera::update(ID3D11DeviceContext* immediateContext)
 {
 	if (GetAsyncKeyState('A'))
 	{
-		
+		rightVec = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT, rotationMX);
 		eyePosition -= rightVec * 0.02f;
 		focusPosition -= rightVec * 0.02f;
 	}
 	else if (GetAsyncKeyState('D'))
 	{
+		rightVec = XMVector3TransformCoord(DEFAULT_RIGHT, rotationMX);
 		eyePosition += rightVec * 0.02f;
 		focusPosition += rightVec * 0.02f;
 	}
 	else if (GetAsyncKeyState('S'))
 	{
+		forwardVec = XMVector3TransformCoord(DEFAULT_FORWARD, rotationForMatrix);
 		eyePosition -= forwardVec * 0.02f;
 		focusPosition -= forwardVec * 0.02f;
 	}
 	else if (GetAsyncKeyState('W'))
 	{
+		forwardVec = XMVector3TransformCoord(DEFAULT_FORWARD, rotationForMatrix);
 		eyePosition += forwardVec * 0.02f;
 		focusPosition += forwardVec * 0.02f;
 	}
@@ -78,7 +81,7 @@ void Camera::update(ID3D11DeviceContext* immediateContext)
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
 	viewProjectionMatrix = view * projection;
 	viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
-	XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
 	VPcBuffer->applyData();
 
 	//kanske behövs kolla senare
