@@ -193,7 +193,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 			start = std::chrono::system_clock::now();
 			tempObject.tempUpdate();
-			camera.update();
+			camera.update(immediateContext);
 
 			if (GetAsyncKeyState('K'))
 			{

@@ -168,6 +168,7 @@
     <ClInclude Include="D3D11Helper.h" />
     <ClInclude Include="DefferedRendering.h" />
     <ClInclude Include="LightCBuffer.h" />
+    <ClInclude Include="Mouse.h" />
     <ClInclude Include="objectStruct.h" />
     <ClInclude Include="OBJParser.h" />
     <ClInclude Include="ParticleSystem.h" />

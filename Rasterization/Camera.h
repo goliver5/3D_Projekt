@@ -11,6 +11,7 @@ private:
 
 	DirectX::XMVECTOR position;
 	DirectX::XMMATRIX rotationMX;
+	DirectX::XMMATRIX rotationForMatrix;
 
 	const DirectX::XMVECTOR DEFAULT_RIGHT = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 	const DirectX::XMVECTOR DEFAULT_UP = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -24,6 +25,10 @@ private:
 	DirectX::XMVECTOR focusPosition;
 	DirectX::XMVECTOR upDirection;
 
+	DirectX::XMFLOAT3 rotFor;
+	DirectX::XMVECTOR rotVector;
+	DirectX::XMVECTOR rotVectorFor = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
 	DirectX::XMVECTOR forwardVec = DEFAULT_FORWARD;
 	DirectX::XMVECTOR upVector = DEFAULT_UP;
 	DirectX::XMVECTOR rightVec = DEFAULT_RIGHT;
@@ -32,9 +37,10 @@ private:
 public:
 	Camera();
 	bool initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immediateContext, ConstantBufferNew<VPMatrix>& cBuffer);
-	void update();
+	void update(ID3D11DeviceContext* immediateContext);
 	void setVSBuffer(ID3D11DeviceContext*& immediateContext);
 	void setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext);
+	void setRotation(float x, float y, ID3D11DeviceContext* immediateContext);
 
 	DirectX::XMVECTOR getcameraPosition();
 };
