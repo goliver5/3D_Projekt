@@ -108,7 +108,7 @@ void Camera::setRotation(float x, float y, ID3D11DeviceContext* immediateContext
 	rot.y += y;
 	rotVector = XMLoadFloat3(&rot);
 
-	rot.y += y;
+	rotFor.y += y;
 	rotVectorFor = XMLoadFloat3(&rotFor);
 
 	//låser rotationen så man inte roterar
