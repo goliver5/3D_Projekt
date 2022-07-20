@@ -59,9 +59,10 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	{
 		testScene[i].draw(immediateContext);
 	}
+	//rita golvet temp
+	tempObj.draw(immediateContext);
 
 	//immediateContext->CSSetShader()
-
 
 	//clear innan
 	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
@@ -174,6 +175,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 
 	SceneObject tempObject(device, immediateContext, textureSRVs[1]);
+	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
 
 	constantBufferNew.Initialize(device, immediateContext);
@@ -192,7 +194,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		{
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 			start = std::chrono::system_clock::now();
-			tempObject.tempUpdate();
+			//tempObject.tempUpdate();
 			camera.update(immediateContext);
 
 			if (GetAsyncKeyState('R'))

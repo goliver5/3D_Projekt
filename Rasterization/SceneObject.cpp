@@ -63,6 +63,17 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 
 }
 
+void SceneObject::rotateObject(float x, float y, float z)
+{
+    //temp scalar och roterar objektet för golvet
+    world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
+    world = DirectX::XMMatrixTranspose(world);
+    world = DirectX::XMMatrixTranslation(10.0f, 0.0f, 10.0f);
+    //world = world * DirectX::XMMatrixRotationX(x);
+    //world = DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(2.0f, 2.0f, 2.0f), world);
+    world = DirectX::XMMatrixTranspose(world);
+}
+
 void SceneObject::tempUpdate()
 {
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);

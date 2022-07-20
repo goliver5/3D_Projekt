@@ -29,6 +29,7 @@ protected:
 public:
 	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs);
 
+	void rotateObject(float x, float y, float z);
 	void tempUpdate();
 	void noMemoryLeak();
 
