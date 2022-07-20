@@ -5,7 +5,7 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
+	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
 	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.1f, 0.0f);
 	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -43,37 +43,38 @@ void Camera::update(ID3D11DeviceContext* immediateContext)
 		eyePosition -= rightVec * 0.02f;
 		focusPosition -= rightVec * 0.02f;
 	}
-	else if (GetAsyncKeyState('D'))
+	if (GetAsyncKeyState('D'))
 	{
 		rightVec = XMVector3TransformCoord(DEFAULT_RIGHT, rotationMX);
 		eyePosition += rightVec * 0.02f;
 		focusPosition += rightVec * 0.02f;
 	}
-	else if (GetAsyncKeyState('S'))
+	if (GetAsyncKeyState('S'))
 	{
 		forwardVec = XMVector3TransformCoord(DEFAULT_FORWARD, rotationForMatrix);
 		eyePosition -= forwardVec * 0.02f;
 		focusPosition -= forwardVec * 0.02f;
 	}
-	else if (GetAsyncKeyState('W'))
+	if (GetAsyncKeyState('W'))
 	{
 		forwardVec = XMVector3TransformCoord(DEFAULT_FORWARD, rotationForMatrix);
 		eyePosition += forwardVec * 0.02f;
 		focusPosition += forwardVec * 0.02f;
 	}
-	else if (GetAsyncKeyState('K'))//Ner rotation
+
+	if (GetAsyncKeyState('K'))//Ner rotation
 	{
 		this->setRotation(0.02, 0.0f, immediateContext);
 	}
-	else if (GetAsyncKeyState('I'))//Up rotation
+	if (GetAsyncKeyState('I'))//Up rotation
 	{
 		this->setRotation(-0.02, 0.0f, immediateContext);
 	}
-	else if (GetAsyncKeyState('J'))//Vänster rotation
+	if (GetAsyncKeyState('J'))//Vänster rotation
 	{
 		this->setRotation(0.0f, -0.02f, immediateContext);
 	}
-	else if (GetAsyncKeyState('L'))//Höger rotation
+	if (GetAsyncKeyState('L'))//Höger rotation
 	{
 		this->setRotation(0.0f, 0.02f, immediateContext);
 	}

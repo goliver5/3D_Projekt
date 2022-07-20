@@ -23,7 +23,7 @@
 //};
 
 
-const UINT NUMBER_OF_PARTICLES = 10;
+const UINT NUMBER_OF_PARTICLES = 10000;
 
 class ParticleSystem
 {

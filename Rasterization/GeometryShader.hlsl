@@ -19,7 +19,7 @@ struct GeometryShaderOutput
 	float4 pos : SV_POSITION;
 };
 
-[maxvertexcount(10)]
+[maxvertexcount(4)]
 void main(point VertexShaderOutput input[1], inout TriangleStream<GeometryShaderOutput> outputStream)
 {
 	
