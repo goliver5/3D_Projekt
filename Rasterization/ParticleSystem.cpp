@@ -71,6 +71,8 @@ ParticleSystem::~ParticleSystem()
 {
 	uav->Release();
 	vBuffer->Release();
+	particleInputLayout->Release();
+	particleVertexShader->Release();
 }
 
 bool ParticleSystem::initiateParticleSystem(ID3D11Device* device, ID3D11DeviceContext*& immediateContext)
