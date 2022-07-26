@@ -44,6 +44,7 @@ public:
 	void setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext);
 	void setRotation(float x, float y, ID3D11DeviceContext* immediateContext);
 	void setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext);
+	cameraForwardUpvector particleTempCamera(ID3D11DeviceContext* immediateContext);
 
 	DirectX::XMVECTOR getcameraPosition();
 };

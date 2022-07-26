@@ -137,12 +137,11 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
     UINT stride = sizeof(VertexData);
     UINT offset = 0;
     int size = vertexData.size();
-    
-    immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
     //immediateContext->Draw(size, 0);
     int counter = 0;
     immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+    immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
     for (int i = 0; i < vertexSubMeshCounter.size(); i++)
     {

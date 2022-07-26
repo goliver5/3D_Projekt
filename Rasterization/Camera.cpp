@@ -5,7 +5,7 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
+	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 1.f, 0.0f);
 	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -40,6 +40,12 @@ bool Camera::initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immedi
 	//this->setRotation(0.01f, 0.01f, immediateContext);
 
 	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+
+	//view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
+	//viewProjectionMatrix = view * projection;
+	//viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
+	//DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+	//VPcBuffer->applyData();
 
 	return true;
 }
@@ -135,6 +141,19 @@ void Camera::setPosition(float x, float y, float z, ID3D11DeviceContext* immedia
 	newPos.z = z;
 	eyePosition = XMVectorSet(newPos.x, newPos.y, newPos.z, 0.0f);
 	focusPosition = XMVector3TransformCoord(DEFAULT_FORWARD, rotationMX) + eyePosition;
+}
+
+cameraForwardUpvector Camera::particleTempCamera(ID3D11DeviceContext* immediateContext)
+{
+	cameraForwardUpvector value;
+
+	forwardVec = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD, rotationMX);
+	upVector = DirectX::XMVector3TransformCoord(DEFAULT_UP, rotationMX);
+
+	DirectX::XMStoreFloat3(&value.upVector, upVector);
+	DirectX::XMStoreFloat3(&value.forwardVector, forwardVec);
+
+	return value;
 }
 
 DirectX::XMVECTOR Camera::getcameraPosition()

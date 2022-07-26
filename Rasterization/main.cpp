@@ -27,7 +27,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
-	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader)
+	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows)
 {
 	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -38,13 +38,18 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 	camera.setVSBuffer(immediateContext);
 
-
 	immediateContext->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
 
 	immediateContext->IASetInputLayout(inputLayout);
 	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->RSSetViewports(1, &viewport);
+
+	//shadow prepass
+	//shadows.shadowFirstPass(immediateContext, testScene);
+	//sätter om viewprojection matrisen
+	camera.setVSBuffer(immediateContext);
+
+	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->PSSetShader(pShader, nullptr, 0);
 
 	//ta väck för forward rendering och måste ta väck defferedrenderer
@@ -189,6 +194,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	testScene[1].setGroundPos();
 
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
+
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
 
@@ -212,7 +218,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			{
 				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "cubeMaterial.obj"));
 			}
-			//for (int i = 0; i < testScene.size(); i++)
+			//for (int i = 2; i < testScene.size(); i++)
 			//{
 			//	testScene[i].tempUpdate();
 			//}
@@ -224,7 +230,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
 				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-				geometryShader);
+				geometryShader, shadowMapping);
 		}
 		
 		swapChain->Present(0, 0);

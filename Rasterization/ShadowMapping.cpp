@@ -139,16 +139,31 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 {
 	std::string vShaderByteCode;
 
-	if (!initiateShadowShader(device, vShaderByteCode)) return false;
-	if (!initiateSrv(device)) return false;
-	if (!initiateDepthStencils(device)) return false;
-	if (!initiateShadowSampler(device)) return false;
-	
+	if (!initiateShadowShader(device, vShaderByteCode))		return false;
+	if (!initiateSrv(device))								return false;
+	if (!initiateDepthStencils(device))						return false;
+	if (!initiateShadowSampler(device))						return false;
+
+	camera.initializeCamera(device, immediateContext, VPBuf);
+
 	return true;
 }
 
-void ShadowMapping::shadowFirstPass(ID3D11Device* device, ID3D11DeviceContext* immediateContext)
+void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects)
 {
-	
-	immediateContext->PSSetShader(nullptr, nullptr, 0u);
+	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	immediateContext->VSSetShader(vertexShadowShader, nullptr, 0);
+
+	ID3D11PixelShader* nullPShader = nullptr;
+	immediateContext->PSSetShader(nullPShader, nullptr, 0u);
+
+	immediateContext->OMSetRenderTargets(0, nullptr, depthStencilView);
+	immediateContext->OMSetDepthStencilState(depthStencilState, 0);
+	camera.setVSBuffer(immediateContext);
+
+
+	for (int i = 0; i < sceneObjects.size(); i++)
+	{
+		sceneObjects[i].draw(immediateContext);
+	}
 }

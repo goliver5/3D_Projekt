@@ -131,7 +131,7 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device, ID3D11DeviceCo
 	particleInfo.Initialize(device, immediateContext);
 
 	identityMatrix.applyData();
-	cameraBuffer.applyData();
+	//cameraBuffer.applyData();
 
 	return true;
 }
@@ -153,7 +153,8 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 	immediateContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
 
 	//immediateContext->GSSetShader()
-	DirectX::XMStoreFloat3(&cameraBuffer.getData().position, camera.getcameraPosition());
+	cameraBuffer.getData() = camera.particleTempCamera(immediateContext);
+	cameraBuffer.getData().SIZE = 10.012f;
 	cameraBuffer.applyData();
 
 	immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());

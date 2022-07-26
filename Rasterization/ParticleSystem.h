@@ -23,7 +23,7 @@
 //};
 
 
-const UINT NUMBER_OF_PARTICLES = 50;
+const UINT NUMBER_OF_PARTICLES = 20;
 
 class ParticleSystem
 {
@@ -37,7 +37,7 @@ private:
 	ID3D11InputLayout* particleInputLayout;
 
 	//kamerans position
-	ConstantBufferNew<position> cameraBuffer;
+	ConstantBufferNew<cameraForwardUpvector> cameraBuffer;
 	//identites matrisen
 	ConstantBufferNew<WMatrix> identityMatrix;
 	//particle information

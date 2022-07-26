@@ -2,7 +2,9 @@
 #include <d3d11.h>
 #include <string>
 #include <fstream>
+#include "SceneObject.h"
 #include "Camera.h"
+#include "ConstantBufferNew.h"
 
 class ShadowMapping
 {
@@ -20,6 +22,8 @@ private:
 	ID3D11Texture2D* texture;
 	ID3D11SamplerState* shadowSampler;
 
+	ConstantBufferNew<VPMatrix> VPBuf;
+
 	bool initiateDepthStencils(ID3D11Device* device);
 	bool initiateShadowShader(ID3D11Device* device, std::string& vShaderByteCode);
 	bool initiateSrv(ID3D11Device* device);
@@ -29,5 +33,5 @@ public:
 	~ShadowMapping();
 
 	bool initiateShadows(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
-	void shadowFirstPass(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
+	void shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects);
 };

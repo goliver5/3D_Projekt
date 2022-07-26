@@ -5,8 +5,10 @@ cbuffer viewProjection : register(b0)
 
 cbuffer cameraBuf : register(b1)
 {
-	float3 cameraPosition;
-	float padding;
+	float3 upVector;
+	float SIZE;
+	float3 forwardVector;
+	float padding2;
 }
 
 struct VertexShaderOutput
@@ -23,12 +25,11 @@ struct GeometryShaderOutput
 void main(point VertexShaderOutput input[1], inout TriangleStream<GeometryShaderOutput> outputStream)
 {
 	
-	float3 cameraForwardVector = input[0].position - float4(cameraPosition, 0.0f);
+	//float3 cameraForwardVector = input[0].position - float4(cameraPosition, 0.0f);
 
-	cameraForwardVector = float3(0.0f, 0.0f, 1.0f);
+	float3 cameraForwardVector = forwardVector;
 	
-	const static float SIZE = 0.12f;
-	float3 up = float3(0.0f, 1.0f, 0.0f);
+	float3 up = upVector;
 	float3 right = cross(cameraForwardVector, up);
 	
 	//static const float PI = 3.14159265f;

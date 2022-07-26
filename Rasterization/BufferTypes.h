@@ -35,3 +35,11 @@ struct particleInformation
 	float pPerThread;
 	float padding[2];
 };
+
+struct cameraForwardUpvector
+{
+	DirectX::XMFLOAT3 upVector;
+	float SIZE = 0.12f;
+	DirectX::XMFLOAT3 forwardVector;
+	float padding2 = 0;
+};
