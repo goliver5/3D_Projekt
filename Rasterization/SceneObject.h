@@ -33,7 +33,7 @@ protected:
 	HRESULT createVertexBuffer(ID3D11Device* device);
 	bool createIndexBuffer(ID3D11Device* device);
 public:
-	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs);
+	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, std::string fileName);
 
 
 	void setGroundPos();

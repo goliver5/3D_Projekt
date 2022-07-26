@@ -54,14 +54,12 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	immediateContext->PSSetSamplers(0, 1, &sampler);
-	tempObj.draw(immediateContext);
+	//tempObj.draw(immediateContext);
 
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i].draw(immediateContext);
 	}
-	//rita golvet temp
-	//tempObj.draw(immediateContext);
 
 	//immediateContext->CSSetShader()
 
@@ -180,9 +178,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	SceneObject tempObject(device, immediateContext, textureSRVs[1]);
+	SceneObject tempObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj");
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
+
+	//roterande kub
+	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
+	//golvet
+	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "ground.obj"));
+	testScene[1].setGroundPos();
 
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
 	constantBufferNew.Initialize(device, immediateContext);
@@ -206,12 +210,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			if (GetAsyncKeyState('R'))
 			{
-				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0]));
+				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "cubeMaterial.obj"));
 			}
-			for (int i = 0; i < testScene.size(); i++)
-			{
-				testScene[i].tempUpdate();
-			}
+			//for (int i = 0; i < testScene.size(); i++)
+			//{
+			//	testScene[i].tempUpdate();
+			//}
+
+			testScene[0].tempUpdate();
+
 			lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 

@@ -40,7 +40,7 @@ bool SceneObject::createIndexBuffer(ID3D11Device* device)
     return true;
 }
 
-SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs)
+SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, std::string fileName)
 {
     textureSRV = textureSRVs;
 
@@ -52,7 +52,7 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 	std::vector<float> normals;
 	std::vector<float> uv;
 
-	ParseOBJFile(vertices, normals, uv, vertexForIndex, vertexSubMeshCounter, indices,  "ground.obj");
+	ParseOBJFile(vertices, normals, uv, vertexForIndex, vertexSubMeshCounter, indices, fileName);
 	
     int verticeplace = 0;
     int uvPlace = 0;
@@ -111,7 +111,7 @@ void SceneObject::tempUpdate()
 {
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
     world = DirectX::XMMatrixTranspose(world);
-    world *= DirectX::XMMatrixTranslation(0.0f, -1.0f, -1.0f);
+    world *= DirectX::XMMatrixTranslation(0.0f, .0f, -1.0f);
     static float rotationAmount = 0.25f / 360.f * DirectX::XM_2PI;
 
     world *= DirectX::XMMatrixRotationY(rotationAmount);
@@ -124,6 +124,7 @@ void SceneObject::noMemoryLeak()
 {
     //textureSRV->Release();
     vertexBuffer->Release();
+    indexBuffer->Release();
 }
 
 void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
