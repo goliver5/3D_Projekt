@@ -15,15 +15,18 @@ private:
 
 	ID3D11DepthStencilState* depthStencilState;
 	ID3D11DepthStencilView* depthStencilView;
-	ID3D11VertexShader* vertexShadowShader;
-	ID3D11ShaderResourceView* shadowSrv;
+	ID3D11VertexShader* vertexShadowShader; //created
+	ID3D11ShaderResourceView* shadowSrv; //created
 	ID3D11Texture2D* texture;
+	ID3D11SamplerState* shadowSampler;
 
-	bool initiateDepthStencilState(ID3D11Device* device);
+	bool initiateDepthStencils(ID3D11Device* device);
 	bool initiateShadowShader(ID3D11Device* device, std::string& vShaderByteCode);
 	bool initiateSrv(ID3D11Device* device);
+	bool initiateShadowSampler(ID3D11Device* device);
 public:
 	ShadowMapping(UINT width, UINT height);
+	~ShadowMapping();
 
 	bool initiateShadows(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
 	void shadowFirstPass(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
