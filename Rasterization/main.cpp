@@ -19,6 +19,7 @@
 #include "CreateTextures.h"
 #include "DefferedRendering.h"
 #include "ParticleSystem.h"
+#include "ShadowMapping.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -28,7 +29,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
 	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader)
 {
-	float clearColour[4]{ 0, 0, 0, 0 };
+	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
 	immediateContext->ClearDepthStencilView(dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
@@ -53,19 +54,19 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	immediateContext->PSSetSamplers(0, 1, &sampler);
-	//tempObj.draw(immediateContext);
+	tempObj.draw(immediateContext);
 
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i].draw(immediateContext);
 	}
 	//rita golvet temp
-	tempObj.draw(immediateContext);
+	//tempObj.draw(immediateContext);
 
 	//immediateContext->CSSetShader()
 
 	//clear innan
-	immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
+	//immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 
 
@@ -142,6 +143,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	DefferedRendering* wow = new DefferedRendering(WIDTH, HEIGHT);
 	ParticleSystem particleSystem;
 	
+	ShadowMapping shadowMapping(WIDTH, HEIGHT);
+	
 
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
 	{
@@ -178,6 +181,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
 
+	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
 

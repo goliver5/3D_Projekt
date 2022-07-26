@@ -19,4 +19,5 @@ struct VertexData
 			uv[i] = uvs[i];
 		}
 	}
+
 };

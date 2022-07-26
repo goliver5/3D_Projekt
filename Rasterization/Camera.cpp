@@ -6,12 +6,12 @@ using namespace DirectX;
 Camera::Camera()
 {
 	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
-	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.1f, 0.0f);
+	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 1.f, 0.0f);
 	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, DEFAULT_UP);
-	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 10.0f);
-	projection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(100), 1.7f, 0.1f, 10.0f);
+	//projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 1011111.0f);
+	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024/576, 0.1f, 10000.0f);
 
 	DirectX::XMMATRIX viewProjection = view * projection;
 	viewProjection = DirectX::XMMatrixTranspose(viewProjection);
@@ -30,8 +30,11 @@ bool Camera::initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immedi
 {
 	cBuffer.Initialize(device, immediateContext);
 	this->VPcBuffer = &cBuffer;
+	// ändra rotation så att kameran inte buggar på första move NÄR rotationMX är 0 kan fixa senare om jag initierar den i konstruktorn
+	this->setRotation(0.01f, 0.01f, immediateContext);
 
 	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+
 	return true;
 }
 
@@ -111,16 +114,6 @@ void Camera::setRotation(float x, float y, ID3D11DeviceContext* immediateContext
 
 	rotFor.y += y;
 	rotVectorFor = XMLoadFloat3(&rotFor);
-
-	//låser rotationen så man inte roterar
-	//if (rot.x > max)
-	//{
-	//	rot.x = max;
-	//}
-	//else if (rot.x < min)
-	//{
-	//	rot.x = min;
-	//}
 
 	rotationForMatrix = XMMatrixRotationRollPitchYawFromVector(rotVectorFor);
 	rotationMX = XMMatrixRotationRollPitchYawFromVector(rotVector);
