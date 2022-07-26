@@ -44,3 +44,10 @@ bool LightCBuffer::setLightCBuffer(ID3D11Device*& device, ID3D11Buffer*& lightCo
 	//immediateContext->VSSetConstantBuffers(1, 1, &lightConstantBuffer);
 	return true;
 }
+
+void LightCBuffer::setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext, ID3D11Buffer*& lightConstantBuffer)
+{
+	DirectX::XMFLOAT3 tempPos(x, y, z);
+	
+	lBuf.cameraPos = tempPos;
+}

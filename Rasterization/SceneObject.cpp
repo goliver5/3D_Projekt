@@ -3,7 +3,7 @@
 HRESULT SceneObject::createVertexBuffer(ID3D11Device* device)
 {
     D3D11_BUFFER_DESC bufferDesc;
-    bufferDesc.ByteWidth = sizeof(VertexData) * vertexData.size();
+    bufferDesc.ByteWidth = sizeof(VertexData) * vertexForIndex.size();
     bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.CPUAccessFlags = 0;
@@ -11,12 +11,33 @@ HRESULT SceneObject::createVertexBuffer(ID3D11Device* device)
     bufferDesc.StructureByteStride = 0;
 
     D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = vertexData.data();
+    data.pSysMem = vertexForIndex.data();
     data.SysMemPitch = 0;
     data.SysMemSlicePitch = 0;
 
     HRESULT hr = device->CreateBuffer(&bufferDesc, &data, &vertexBuffer);
     return hr;
+}
+
+bool SceneObject::createIndexBuffer(ID3D11Device* device)
+{
+    D3D11_BUFFER_DESC bufferDesc;
+    bufferDesc.ByteWidth = sizeof(int) * indices.size();
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    bufferDesc.CPUAccessFlags = 0;
+    bufferDesc.MiscFlags = 0;
+    bufferDesc.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA data;
+    data.pSysMem = indices.data();
+    data.SysMemPitch = 0;
+    data.SysMemSlicePitch = 0;
+
+    HRESULT hr = device->CreateBuffer(&bufferDesc, &data, &indexBuffer);
+    if (FAILED(hr)) return false;
+
+    return true;
 }
 
 SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs)
@@ -30,7 +51,8 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 	std::vector<float> vertices;
 	std::vector<float> normals;
 	std::vector<float> uv;
-	ParseOBJFile(vertices, normals, uv, "cubeMaterial.obj");
+
+	ParseOBJFile(vertices, normals, uv, vertexForIndex, vertexSubMeshCounter, indices,  "ground.obj");
 	
     int verticeplace = 0;
     int uvPlace = 0;
@@ -60,7 +82,18 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
         tempUv.clear();
     }
     createVertexBuffer(device);
+    createIndexBuffer(device);
+    setGroundPos();
+}
 
+void SceneObject::setGroundPos()
+{
+    world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
+    world = DirectX::XMMatrixTranspose(world);
+    world *= DirectX::XMMatrixTranslation(0.0f, -3.0f, 0.0f);
+
+    world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+    world = DirectX::XMMatrixTranspose(world);
 }
 
 void SceneObject::rotateObject(float x, float y, float z)
@@ -78,7 +111,7 @@ void SceneObject::tempUpdate()
 {
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
     world = DirectX::XMMatrixTranspose(world);
-    world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, -1.0f);
+    world *= DirectX::XMMatrixTranslation(0.0f, -1.0f, -1.0f);
     static float rotationAmount = 0.25f / 360.f * DirectX::XM_2PI;
 
     world *= DirectX::XMMatrixRotationY(rotationAmount);
@@ -103,7 +136,18 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
     UINT stride = sizeof(VertexData);
     UINT offset = 0;
     int size = vertexData.size();
+    
     immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
-    immediateContext->Draw(size, 0);
+    //immediateContext->Draw(size, 0);
+    int counter = 0;
+    immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+    for (int i = 0; i < vertexSubMeshCounter.size(); i++)
+    {
+        //skicka in submeshes i pixelshadern
+        immediateContext->DrawIndexed(vertexSubMeshCounter[i], counter, 0);
+        counter += vertexSubMeshCounter[i];
+    }
+
 }

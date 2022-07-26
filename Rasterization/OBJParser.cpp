@@ -4,14 +4,15 @@
 #include<iostream>
 #include <chrono>
 
-bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, string fileName)
+bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
+	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName)
 {
 	//plats i vertexForIndex där verticer är likadana
-	std::vector<int> indices;
+	//std::vector<int> indices;
 	//vertexbuffern som används med indexbuffern
-	std::vector<VertexData> vertexForIndex;
+	//std::vector<VertexData> vertexForIndex;
 	//
-	std::vector<int>vertexSubMeshCounter;
+	//std::vector<int>vertexSubMeshCounter;
 
 	std::string currentMTL;
 

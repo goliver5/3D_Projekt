@@ -149,5 +149,6 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 
 void ShadowMapping::shadowFirstPass(ID3D11Device* device, ID3D11DeviceContext* immediateContext)
 {
+	
 	immediateContext->PSSetShader(nullptr, nullptr, 0u);
 }

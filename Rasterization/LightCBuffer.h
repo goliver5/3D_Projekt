@@ -20,4 +20,5 @@ public:
 
 	void updateLightCBuffer(ID3D11Device*& device, ID3D11Buffer*& lightConstantBuffer, ID3D11DeviceContext*& immediateContext);
 	bool setLightCBuffer(ID3D11Device*& device, ID3D11Buffer*& lightConstantBuffer, ID3D11DeviceContext*& immediateContext);
+	void setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext, ID3D11Buffer*& lightConstantBuffer);
 };

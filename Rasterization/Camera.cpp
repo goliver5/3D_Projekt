@@ -127,6 +127,16 @@ void Camera::setRotation(float x, float y, ID3D11DeviceContext* immediateContext
 	focusPosition = XMVector3TransformCoord(DEFAULT_FORWARD, rotationMX) + eyePosition;
 }
 
+void Camera::setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext)
+{
+	XMFLOAT3 newPos;
+	newPos.x = x;
+	newPos.y = y;
+	newPos.z = z;
+	eyePosition = XMVectorSet(newPos.x, newPos.y, newPos.z, 0.0f);
+	focusPosition = XMVector3TransformCoord(DEFAULT_FORWARD, rotationMX) + eyePosition;
+}
+
 DirectX::XMVECTOR Camera::getcameraPosition()
 {
 	return position;

@@ -94,3 +94,9 @@ void DefferedRendering::lightPass(ID3D11DeviceContext*& immediateContext)
 {
 	immediateContext->CSSetShaderResources(0, GBUFFER_COUNT, gBufferSRV);
 }
+
+void DefferedRendering::clearTemp(ID3D11DeviceContext*& immediateContext)
+{
+	ID3D11ShaderResourceView* nullSRV[GBUFFER_COUNT]{ nullptr };
+	immediateContext->CSSetShaderResources(0, GBUFFER_COUNT, nullSRV);
+}

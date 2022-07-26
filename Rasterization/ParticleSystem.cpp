@@ -161,7 +161,11 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 	immediateContext->GSSetConstantBuffers(1, 1, cameraBuffer.getReferenceOf());
 
 	immediateContext->Draw(size, 0);
+	//tar väck från pipeline
 	immediateContext->GSSetShader(nullptr, nullptr, 0);
+
+	ID3D11Buffer* tempBuffer = nullptr;
+	immediateContext->IASetVertexBuffers(0, 1, &tempBuffer, &stride, &offset);
 
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	immediateContext->CSSetConstantBuffers(0, 1, particleInfo.getReferenceOf());
@@ -170,6 +174,8 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 	
 	immediateContext->Dispatch(50, 1, 1);
 
+	ID3D11UnorderedAccessView* tempUav = nullptr;
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &tempUav, nullptr);
 }
 
 

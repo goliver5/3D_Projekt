@@ -79,8 +79,11 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->Dispatch(32, 32, 1);
 	/*defferedRenderer->clearRenderTargets(immediateContext);*/
 
-	/*ID3D11UnorderedAccessView* nullUav = nullptr;
-	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);*/
+	ID3D11UnorderedAccessView* nullUav = nullptr;
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+
+	defferedRenderer->clearTemp(immediateContext);
+
 
 	//partikle systemets draw call
 	immediateContext->GSSetShader(geometryShader, nullptr, 0);

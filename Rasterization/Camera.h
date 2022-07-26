@@ -36,11 +36,14 @@ private:
 	ConstantBufferNew<VPMatrix> *VPcBuffer;
 public:
 	Camera();
+
 	bool initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immediateContext, ConstantBufferNew<VPMatrix>& cBuffer);
 	void update(ID3D11DeviceContext* immediateContext);
+
 	void setVSBuffer(ID3D11DeviceContext*& immediateContext);
 	void setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext);
 	void setRotation(float x, float y, ID3D11DeviceContext* immediateContext);
+	void setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext);
 
 	DirectX::XMVECTOR getcameraPosition();
 };
