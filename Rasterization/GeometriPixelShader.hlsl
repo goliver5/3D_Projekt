@@ -15,6 +15,7 @@ struct PixelShaderInput
 	float3 worldPos : WORLD_POS;
 	float3 normal : NORMAL;
 	float2 uv : UV;
+	float4 posLight : LIGHTPOS;
 };
 
 struct PixelShaderOutput
@@ -27,6 +28,9 @@ struct PixelShaderOutput
 PixelShaderOutput main(PixelShaderInput input)
 {
 	PixelShaderOutput output;
+	
+	float4 texColor = testTexture.Sample(testSampler, input.uv);
+	
 
 	output.Texture = testTexture.Sample(testSampler, input.uv);
 

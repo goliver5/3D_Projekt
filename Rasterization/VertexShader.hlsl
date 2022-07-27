@@ -8,6 +8,11 @@ cbuffer viewProjection : register(b1)
 	float4x4 VPMatrix;
 }
 
+cbuffer lightViewProjection : register(b2)
+{
+	float4x4 lightVPMatrix;
+};
+
 struct VertexShaderInput
 {
 	float3 position : POSITION;
@@ -21,6 +26,7 @@ struct VertexShaderOutput
 	float3 worldPos : WORLD_POS;
 	float3 normal : NORMAL;
 	float2 uv : UV;
+	float4 posLight : LIGHTPOS;
 };
 
 VertexShaderOutput main(VertexShaderInput input)
@@ -30,9 +36,11 @@ VertexShaderOutput main(VertexShaderInput input)
 	//output.position = mul(float4(input.position, 1.0f), viewProjectionMatrix);
 	//output.position = mul(float4(input.position, 1.0f), worldMatrix);
 	
-
+	
 	output.position = mul(float4(input.position, 1.0f), mul(worldMatrix, VPMatrix));
 	output.worldPos = mul(float4(input.position, 1.0f), worldMatrix);
+	
+	output.posLight = mul(output.position, lightVPMatrix);
 
 	//output.position = float4(input.position, 1.0f);
 	//output.normal = mul(float4(input.normal,0.0f), worldMatrix);

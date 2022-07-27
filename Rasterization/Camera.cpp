@@ -5,8 +5,8 @@ using namespace DirectX;
 
 Camera::Camera()
 {
-	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	focusPosition = DirectX::XMVectorSet(0.0f, 0.0f, 1.f, 0.0f);
+	eyePosition = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
+	focusPosition = DirectX::XMVectorSet(0.0f, 0.f, 1.f, 0.0f);
 	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	rot.x = 0.0f;
@@ -15,9 +15,11 @@ Camera::Camera()
 	rotationForMatrix = XMMatrixRotationRollPitchYawFromVector(rotVectorFor);
 	rotationMX = DirectX::XMMatrixRotationRollPitchYawFromVector(rotVectorFor);
 
+
+
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, DEFAULT_UP);
 	//projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 1011111.0f);
-	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024/576, 0.1f, 10000.0f);
+	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024/576, 0.1f, 1000.0f);
 
 	DirectX::XMMATRIX viewProjection = view * projection;
 	viewProjection = DirectX::XMMatrixTranspose(viewProjection);
@@ -41,11 +43,11 @@ bool Camera::initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immedi
 
 	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
 
-	//view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
-	//viewProjectionMatrix = view * projection;
-	//viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
-	//DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
-	//VPcBuffer->applyData();
+	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
+	viewProjectionMatrix = view * projection;
+	viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
+	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+	VPcBuffer->applyData();
 
 	return true;
 }
@@ -79,19 +81,19 @@ void Camera::update(ID3D11DeviceContext* immediateContext)
 
 	if (GetAsyncKeyState('K'))//Ner rotation
 	{
-		this->setRotation(0.02, 0.0f, immediateContext);
+		this->changeRotation(0.02, 0.0f, immediateContext);
 	}
 	if (GetAsyncKeyState('I'))//Up rotation
 	{
-		this->setRotation(-0.02, 0.0f, immediateContext);
+		this->changeRotation(-0.02, 0.0f, immediateContext);
 	}
 	if (GetAsyncKeyState('J'))//Vänster rotation
 	{
-		this->setRotation(0.0f, -0.02f, immediateContext);
+		this->changeRotation(0.0f, -0.02f, immediateContext);
 	}
 	if (GetAsyncKeyState('L'))//Höger rotation
 	{
-		this->setRotation(0.0f, 0.02f, immediateContext);
+		this->changeRotation(0.0f, 0.02f, immediateContext);
 	}
 
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
@@ -115,7 +117,7 @@ void Camera::setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext)
 	immediateContext->GSSetConstantBuffers(0, 1, VPcBuffer->getReferenceOf());
 }
 
-void Camera::setRotation(float x, float y, ID3D11DeviceContext* immediateContext)
+void Camera::changeRotation(float x, float y, ID3D11DeviceContext* immediateContext)
 {
 	const float max = 1.5f;
 	const float min = -1.5f;
@@ -124,13 +126,34 @@ void Camera::setRotation(float x, float y, ID3D11DeviceContext* immediateContext
 	rot.y += y;
 	rotVector = XMLoadFloat3(&rot);
 
-	rotFor.y += y;
+	rotFor.y = y;
 	rotVectorFor = XMLoadFloat3(&rotFor);
 
 	rotationForMatrix = XMMatrixRotationRollPitchYawFromVector(rotVectorFor);
 	rotationMX = XMMatrixRotationRollPitchYawFromVector(rotVector);
 	upVector = XMVector3TransformCoord(DEFAULT_UP, rotationMX);
 	focusPosition = XMVector3TransformCoord(DEFAULT_FORWARD, rotationMX) + eyePosition;
+}
+
+void Camera::setLightTemp()
+{
+	eyePosition = DirectX::XMVectorSet(0.0f, 5.0f, -3.0f, 0.0f);
+	focusPosition = DirectX::XMVectorSet(0.0f, 0.f, 1.f, 0.0f);
+	upDirection = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, DEFAULT_UP);
+	//projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 1011111.0f);
+	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024 / 576, 0.1f, 1000.0f);
+
+	DirectX::XMMATRIX viewProjection = view * projection;
+	viewProjection = DirectX::XMMatrixTranspose(viewProjection);
+	this->viewProjectionMatrix = viewProjection;
+
+	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, upVector);
+	viewProjectionMatrix = view * projection;
+	viewProjectionMatrix = DirectX::XMMatrixTranspose(viewProjectionMatrix);
+	DirectX::XMStoreFloat4x4(&VPcBuffer->getData().VPMatrix, this->viewProjectionMatrix);
+	VPcBuffer->applyData();
 }
 
 void Camera::setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext)
@@ -154,6 +177,11 @@ cameraForwardUpvector Camera::particleTempCamera(ID3D11DeviceContext* immediateC
 	DirectX::XMStoreFloat3(&value.forwardVector, forwardVec);
 
 	return value;
+}
+
+void Camera::setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext)
+{
+	immediateContext->VSSetConstantBuffers(startSlot, numBuffers, VPcBuffer->getReferenceOf());
 }
 
 DirectX::XMVECTOR Camera::getcameraPosition()

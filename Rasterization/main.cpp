@@ -25,7 +25,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
 	ID3D11Buffer* vertexBuffer, ID3D11SamplerState* sampler, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
-	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, SceneObject &tempObj, std::vector<SceneObject>& testScene,
+	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
 	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows)
 {
@@ -36,7 +36,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
 
-	camera.setVSBuffer(immediateContext);
+	//camera.setVSBuffer(immediateContext);
 
 	immediateContext->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
 
@@ -45,9 +45,11 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->RSSetViewports(1, &viewport);
 
 	//shadow prepass
+	immediateContext->OMSetRenderTargets(1, &rtv, nullptr);
 	shadows.shadowFirstPass(immediateContext, testScene);
 	//sätter om viewprojection matrisen
 	camera.setVSBuffer(immediateContext);
+	//shadows.setCameraBuffer(immediateContext);
 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->PSSetShader(pShader, nullptr, 0);
@@ -59,7 +61,6 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	immediateContext->PSSetSamplers(0, 1, &sampler);
-	//tempObj.draw(immediateContext);
 
 	for (int i = 0; i < testScene.size(); i++)
 	{
@@ -183,7 +184,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-	SceneObject tempObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj");
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
 
@@ -229,7 +229,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, tempObject, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping);
 		}
 		
@@ -255,7 +255,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 
 	
-	tempObject.noMemoryLeak();
 	pixelParticleShader->Release();
 	vertexBuffer->Release();
 	inputLayout->Release();

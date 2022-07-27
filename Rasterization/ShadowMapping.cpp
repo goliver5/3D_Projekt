@@ -145,6 +145,8 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 	if (!initiateShadowSampler(device))						return false;
 
 	camera.initializeCamera(device, immediateContext, VPBuf);
+	camera.setLightTemp();
+	//camera.setPosition(0.0f, 1.0f, -3.0f, immediateContext);
 
 	return true;
 }
@@ -161,9 +163,16 @@ void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::
 	immediateContext->OMSetDepthStencilState(depthStencilState, 0);
 	camera.setVSBuffer(immediateContext);
 
+	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);
 
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i].draw(immediateContext);
 	}
 }
+
+void ShadowMapping::setCameraBuffer(ID3D11DeviceContext* immediateContext)
+{
+	camera.setVSBuffer(immediateContext);
+}
+

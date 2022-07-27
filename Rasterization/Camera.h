@@ -42,9 +42,12 @@ public:
 
 	void setVSBuffer(ID3D11DeviceContext*& immediateContext);
 	void setGSViewProjectionBuffer(ID3D11DeviceContext*& immediateContext);
-	void setRotation(float x, float y, ID3D11DeviceContext* immediateContext);
+	void changeRotation(float x, float y, ID3D11DeviceContext* immediateContext);
+	void setLightTemp();
 	void setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext);
 	cameraForwardUpvector particleTempCamera(ID3D11DeviceContext* immediateContext);
+
+	void setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext *immediateContext);
 
 	DirectX::XMVECTOR getcameraPosition();
 };

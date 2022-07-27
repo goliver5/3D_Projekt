@@ -34,4 +34,5 @@ public:
 
 	bool initiateShadows(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
 	void shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects);
+	void setCameraBuffer(ID3D11DeviceContext* immediateContext);
 };
