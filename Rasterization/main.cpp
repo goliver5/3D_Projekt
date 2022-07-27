@@ -45,7 +45,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	immediateContext->RSSetViewports(1, &viewport);
 
 	//shadow prepass
-	//shadows.shadowFirstPass(immediateContext, testScene);
+	shadows.shadowFirstPass(immediateContext, testScene);
 	//sätter om viewprojection matrisen
 	camera.setVSBuffer(immediateContext);
 

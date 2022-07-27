@@ -154,7 +154,7 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 
 	//immediateContext->GSSetShader()
 	cameraBuffer.getData() = camera.particleTempCamera(immediateContext);
-	cameraBuffer.getData().SIZE = 10.012f;
+	cameraBuffer.getData().SIZE = 0.12f;
 	cameraBuffer.applyData();
 
 	immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());
