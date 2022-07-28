@@ -83,6 +83,7 @@ void DefferedRendering::clearRenderTargets(ID3D11DeviceContext* immediateContext
 void DefferedRendering::firstPass(ID3D11DeviceContext* immediateContext, ID3D11DepthStencilView* dsView)
 {
 	immediateContext->OMSetRenderTargets(GBUFFER_COUNT, gBufferRTV, dsView);
+
 	float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 	for (int i = 0; i < GBUFFER_COUNT; i++)
 	{
