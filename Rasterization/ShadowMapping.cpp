@@ -74,8 +74,11 @@ bool ShadowMapping::initiateSrv(ID3D11Device* device)
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS;// ???????? kanske ändras
 	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
 
 	HRESULT hr = device->CreateTexture2D(&textureDesc, nullptr, &texture);
 	if (FAILED(hr)) return false;
@@ -145,7 +148,7 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 	if (!initiateShadowSampler(device))						return false;
 
 	camera.initializeCamera(device, immediateContext, VPBuf);
-	camera.setLightTemp();
+	//camera.setLightTemp();
 	//camera.setPosition(0.0f, 1.0f, -3.0f, immediateContext);
 
 	return true;
@@ -161,6 +164,8 @@ void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::
 
 	immediateContext->OMSetRenderTargets(0, nullptr, depthStencilView);
 	immediateContext->OMSetDepthStencilState(depthStencilState, 0);
+	immediateContext->PSSetSamplers(1, 1, &shadowSampler);
+	immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
 	camera.setVSBuffer(immediateContext);
 
 	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);

@@ -156,6 +156,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="ShadowMapping.cpp" />
+    <ClCompile Include="Tesselator.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="ShadowMapping.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Tesselator.h" />
     <ClInclude Include="WindowHelper.h" />
   </ItemGroup>
   <ItemGroup>

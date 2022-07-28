@@ -129,6 +129,7 @@ void Camera::changeRotation(float x, float y, ID3D11DeviceContext* immediateCont
 	rotFor.y = y;
 	rotVectorFor = XMLoadFloat3(&rotFor);
 
+
 	rotationForMatrix = XMMatrixRotationRollPitchYawFromVector(rotVectorFor);
 	rotationMX = XMMatrixRotationRollPitchYawFromVector(rotVector);
 	upVector = XMVector3TransformCoord(DEFAULT_UP, rotationMX);
