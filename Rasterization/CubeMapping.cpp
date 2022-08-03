@@ -168,6 +168,7 @@ CubeMapping::~CubeMapping()
     SamplepixelShader->Release();
     depthStencilView->Release();
     cubeObject->noMemoryLeak();
+    cubeSampler->Release();
 }
 
 bool CubeMapping::initialize(ID3D11Device* device, ID3D11DeviceContext* immediateContext)
