@@ -11,26 +11,6 @@ bool ShadowMapping::initiateDepthStencils(ID3D11Device* device)
 
 	if (FAILED(hr)) return false;
 
-	D3D11_DEPTH_STENCIL_DESC dsDesc;
-
-	dsDesc.DepthEnable = true;
-	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	dsDesc.StencilEnable = true;
-	dsDesc.StencilReadMask = 0xFF;
-	dsDesc.StencilWriteMask = 0xFF;
-	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	hr = device->CreateDepthStencilState(&dsDesc, &depthStencilState);
-	if (FAILED(hr)) return false;
-
 	return true;
 }
 
@@ -83,7 +63,7 @@ bool ShadowMapping::initiateSrv(ID3D11Device* device)
 	HRESULT hr = device->CreateTexture2D(&textureDesc, nullptr, &texture);
 	if (FAILED(hr)) return false;
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderDesc{};
 	shaderDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	shaderDesc.Texture2D.MostDetailedMip = 0;
@@ -120,7 +100,6 @@ bool ShadowMapping::initiateShadowSampler(ID3D11Device* device)
 ShadowMapping::ShadowMapping(UINT width, UINT height)
 	:width(width),height(height)
 {
-	depthStencilState = nullptr;
 	this->depthStencilView = nullptr;
 	this->shadowSrv = nullptr;
 	this->vertexShadowShader = nullptr;
@@ -130,7 +109,6 @@ ShadowMapping::ShadowMapping(UINT width, UINT height)
 
 ShadowMapping::~ShadowMapping()
 {
-	depthStencilState->Release();
 	depthStencilView->Release();
 	vertexShadowShader->Release();
 	shadowSrv->Release();
@@ -148,8 +126,9 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 	if (!initiateShadowSampler(device))						return false;
 
 	camera.initializeCamera(device, immediateContext, VPBuf);
-	camera.setLightTemp();
-	//camera.setPosition(0.0f, 1.0f, -3.0f, immediateContext);
+
+	camera.setPosition(0.0f, 5.0f, -3.0f);
+	camera.setRotation(0.5f, 0.f, 0.f);
 
 	return true;
 }
@@ -163,10 +142,15 @@ void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::
 	immediateContext->PSSetShader(nullPShader, nullptr, 0u);
 
 	immediateContext->OMSetRenderTargets(0, nullptr, depthStencilView);
-	immediateContext->OMSetDepthStencilState(depthStencilState, 0);
+	//immediateContext->OMSetDepthStencilState(depthStencilState, 0);
 	immediateContext->PSSetSamplers(1, 1, &shadowSampler);
-	immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
-	camera.setVSBuffer(immediateContext);
+	//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
+	//camera.setVSBuffer(immediateContext);
+
+	//camera.ShadowUpdateDebug(immediateContext);
+
+	camera.setPosition(0.0f, 5.0f, -3.0f);
+	camera.setRotation(0.5f, 0.f, 0.f);
 
 	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);
 
@@ -175,13 +159,33 @@ void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::
 		sceneObjects[i].draw(immediateContext);
 	}
 
+	//används för test sätter camera bufferns viewprojection till shadows camera
+	//camera.setVSBuffer(immediateContext);
+
+	//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
 
 	ID3D11DepthStencilState* nullDState = nullptr;
-	immediateContext->OMSetDepthStencilState(nullDState, 0);
+	//immediateContext->OMSetDepthStencilState(nullDState, 0);
+}
+
+void ShadowMapping::setSRV(ID3D11DeviceContext* immediateContext)
+{
+	immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
+}
+
+void ShadowMapping::setSRVNull(ID3D11DeviceContext* immediateContext)
+{
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	immediateContext->PSSetShaderResources(1, 1, &nullSRV);
 }
 
 void ShadowMapping::setCameraBuffer(ID3D11DeviceContext* immediateContext)
 {
-	camera.setVSBuffer(immediateContext);
+	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);
+}
+
+void ShadowMapping::setShadowToCurrentCamera(ID3D11DeviceContext* immediateContext)
+{
+	camera.setviewProjectionLightVertexShader(1, 1, immediateContext);
 }
 

@@ -15,7 +15,6 @@ private:
 	UINT width;
 	UINT height;
 
-	ID3D11DepthStencilState* depthStencilState;
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11VertexShader* vertexShadowShader; //created
 	ID3D11ShaderResourceView* shadowSrv; //created
@@ -34,5 +33,8 @@ public:
 
 	bool initiateShadows(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
 	void shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects);
+	void setSRV(ID3D11DeviceContext* immediateContext);
+	void setSRVNull(ID3D11DeviceContext* immediateContext);
 	void setCameraBuffer(ID3D11DeviceContext* immediateContext);
+	void setShadowToCurrentCamera(ID3D11DeviceContext* immediateContext);
 };

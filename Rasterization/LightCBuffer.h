@@ -2,13 +2,7 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 
-struct lightBuf
-{
-	DirectX::XMFLOAT3 lightPos;
-	float ambienceStrength;
-	DirectX::XMFLOAT3 cameraPos;
-	float padd;
-};
+#include"BufferTypes.h"
 
 class LightCBuffer
 {

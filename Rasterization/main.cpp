@@ -3,6 +3,15 @@
 #include <d3d11.h>
 #include <vector>
 
+#include "imGUI\imconfig.h"
+#include "imGUI\imgui.h"
+#include "imGUI\imgui_impl_dx11.h"
+#include "imGUI\imgui_internal.h"
+#include "imGUI\imstb_rectpack.h"
+#include "imGUI\imstb_textedit.h"
+#include "imGUI\imstb_truetype.h"
+#include "imGUI\imgui_impl_win32.h"
+
 #include "WindowHelper.h"
 #include "Camera.h"
 #include "D3D11Helper.h"
@@ -20,6 +29,8 @@
 #include "DefferedRendering.h"
 #include "ParticleSystem.h"
 #include "ShadowMapping.h"
+#include "Tesselator.h"
+#include "CubeMapping.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -27,7 +38,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
-	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows)
+	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows,
+	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode)
 {
 	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -36,65 +48,129 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
 
-	//camera.setVSBuffer(immediateContext);
+	tesselator.setWireFrameMode(immediateContext, WireFrameMode);
 
+
+
+	//camera.setVSBuffer(immediateContext);
+	//tesselator.setTesselatorState(immediateContext);
 	immediateContext->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
 
 	immediateContext->IASetInputLayout(inputLayout);
 	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	immediateContext->RSSetViewports(1, &viewport);
+	camera.setVSBuffer(immediateContext);
+	immediateContext->PSSetSamplers(0, 1, &sampler);
+
+
+	immediateContext->VSSetShader(vShader, nullptr, 0);
+	cubeMapping.firstPass(immediateContext, testScene);
 
 	//shadow prepass
-	immediateContext->OMSetRenderTargets(1, &rtv, nullptr);
+	//immediateContext->OMSetRenderTargets(1, &rtv, nullptr);
+	
+	camera.setVSBuffer(immediateContext);
 	shadows.shadowFirstPass(immediateContext, testScene);
 	//sätter om viewprojection matrisen
-	camera.setVSBuffer(immediateContext);
-	//shadows.setCameraBuffer(immediateContext);
+
+	//camera.setVSBuffer(immediateContext); GÖR REDAN DET ETT PAR RADER UPP MEN KANSKE GÖRA OM DET EFTER SHADOWS DRAW CALL
+
+	//sätter skuggans camera till main kamera
+	if (!changeCamera)
+	{
+		shadows.setShadowToCurrentCamera(immediateContext);
+	}
 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
 	immediateContext->PSSetShader(pShader, nullptr, 0);
-
+	//shadows.setCameraBuffer(immediateContext);
 	//ta väck för forward rendering och måste ta väck defferedrenderer
-	//immediateContext->OMSetRenderTargets(1, &rtv, dsView);
-
+	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 	// deferred rendering börjar första pass (light pass)
-	defferedRenderer->firstPass(immediateContext, dsView);
+	//defferedRenderer->firstPass(immediateContext, dsView);
 
-	immediateContext->PSSetSamplers(0, 1, &sampler);
-
+	shadows.setSRV(immediateContext);
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i].draw(immediateContext);
 	}
+	shadows.setSRVNull(immediateContext);
 
 	//immediateContext->CSSetShader()
 
 	//clear innan
 	//immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
-
-
+	
 
 	//deferred rendering andra pass för ljuset
-	ID3D11RenderTargetView* nullRtv = nullptr;
-	immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
-	immediateContext->CSSetShader(cShader, nullptr, 0);
-	immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
-	defferedRenderer->lightPass(immediateContext);
-	immediateContext->Dispatch(32, 32, 1);
-	/*defferedRenderer->clearRenderTargets(immediateContext);*/
+	//ID3D11RenderTargetView* nullRtv = nullptr;
+	//immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
+	//immediateContext->CSSetShader(cShader, nullptr, 0);
+	//immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
+	//defferedRenderer->lightPass(immediateContext);
+	//immediateContext->Dispatch(32, 32, 1);
+	///*defferedRenderer->clearRenderTargets(immediateContext);*/
 
-	ID3D11UnorderedAccessView* nullUav = nullptr;
-	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+	//ID3D11UnorderedAccessView* nullUav = nullptr;
+	//immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
-	defferedRenderer->clearTemp(immediateContext);
+	//defferedRenderer->clearTemp(immediateContext);
 
 
-	//partikle systemets draw call
-	immediateContext->GSSetShader(geometryShader, nullptr, 0);
-	immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
-	immediateContext->CSSetShader(particleComputeShader, nullptr, 0);
+	//utanför funktionen så att imgui och cubemappen också renderas
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
-	particleSystem.draw(immediateContext, camera);
+
+	//sätter kamerans position till pixelshadern
+	camera.setPSCameraPosition(immediateContext);
+	camera.setVSBuffer(immediateContext);
+
+	//camera.setviewProjectionLightVertexShader(0, 1, immediateContext);
+	immediateContext->VSSetShader(vShader, nullptr, 0);
+	//immediateContext->PSSetSamplers(0, 1, &sampler);
+	cubeMapping.drawCube(immediateContext);
+
+	if (renderParticles == true)
+	{
+		//partiklesystemets draw call
+		immediateContext->GSSetShader(geometryShader, nullptr, 0);
+		immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+		immediateContext->CSSetShader(particleComputeShader, nullptr, 0);
+		particleSystem.draw(immediateContext, camera);
+	}
+	//varning för nästa draw call detta fixar
+	ID3D11ShaderResourceView* nullrsv = nullptr;
+	immediateContext->PSSetShaderResources(0, 1, &nullrsv);
+	immediateContext->PSSetShaderResources(1, 1, &nullrsv);
+
+}
+
+void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode)
+{
+	
+	DirectX::XMFLOAT3 camPos;
+	DirectX::XMStoreFloat3(&camPos, camera.getcameraPosition());
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	{
+		bool begun = ImGui::Begin("Screen Modifiers");
+		if (begun)
+		{
+			ImGui::Text("camera Position X: %d Y: %d Z: %d", (int)camPos.x, (int)camPos.y, (int)camPos.z);
+			ImGui::Checkbox("RenderParticles", &renderParticles);
+			ImGui::Checkbox("ChangeCamera", &changeCamera);
+			ImGui::Checkbox("wireFrameMode", &WireFrameMode);
+			//ImGui::Checkbox("Im lazy", &rotation);
+			//ImGui::SliderInt("Delta Time", &nrOfBullets, 1, 5);
+		}
+		ImGui::End();
+	}
+
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 }
 
@@ -104,8 +180,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	const UINT WIDTH = 1024;
-	const UINT HEIGHT = 576;
+	const UINT HEIGHT = 1024;
 	HWND window;
+
+	bool renderParticles = true;
+	bool changeCamera = true;
+	bool WireFrameMode = false;
+
 
 	auto start = std::chrono::system_clock::now();
 
@@ -149,8 +230,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	DefferedRendering* wow = new DefferedRendering(WIDTH, HEIGHT);
 	ParticleSystem particleSystem;
-	
+	Tesselator tesselator;
 	ShadowMapping shadowMapping(WIDTH, HEIGHT);
+
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
 	
 
 	if (!SetupD3D11(WIDTH, HEIGHT, window, device, immediateContext, swapChain, rtv, dsTexture, dsView, viewport, backBufferUAV))
@@ -184,20 +270,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
+	ImGui_ImplWin32_Init(window);
+	ImGui_ImplDX11_Init(device, immediateContext);
+
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
+
+	SceneObject cubeObject(device, immediateContext, textureSRVs[0], "morg_sphere.obj");
+
+	CubeMapping cubeMapping(cubeObject, WIDTH, HEIGHT);
 
 	//roterande kub
 	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
 	//golvet
-	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "ground.obj"));
+	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "ground.obj"));
 	testScene[1].setGroundPos();
 
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
+	if (!tesselator.initiateTesselator(device, immediateContext)) return -1;
+	if (!cubeMapping.initialize(device, immediateContext))return -1;
 
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
-
 	MSG msg = {};
 
 	while (msg.message != WM_QUIT)
@@ -225,14 +319,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			testScene[0].tempUpdate();
 
-			lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
+			//lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
 				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-				geometryShader, shadowMapping);
+				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode);
+
+			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode);
+			
 		}
-		
 		swapChain->Present(0, 0);
 	}
 
@@ -269,6 +365,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	geometryShader->Release();
 	particleComputeShader->Release();
 
+
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 
 
 	return 0;

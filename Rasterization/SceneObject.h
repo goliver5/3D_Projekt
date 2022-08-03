@@ -37,9 +37,13 @@ public:
 
 
 	void setGroundPos();
+	void setPosition(float x, float y, float z);
 	void rotateObject(float x, float y, float z);
 	void tempUpdate();
 	void noMemoryLeak();
 
+	void updateBuffer();
+
 	void draw(ID3D11DeviceContext*& immediateContext);
+	void drawCubeMap(ID3D11DeviceContext*& immediateContext);
 };

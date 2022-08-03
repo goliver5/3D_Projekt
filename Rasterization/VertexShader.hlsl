@@ -23,7 +23,7 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
 	float4 position : SV_POSITION;
-	float3 worldPos : WORLD_POS;
+	float4 worldPos : WORLD_POS;
 	float3 normal : NORMAL;
 	float2 uv : UV;
 	float4 posLight : LIGHTPOS;
@@ -40,7 +40,7 @@ VertexShaderOutput main(VertexShaderInput input)
 	output.position = mul(float4(input.position, 1.0f), mul(worldMatrix, VPMatrix));
 	output.worldPos = mul(float4(input.position, 1.0f), worldMatrix);
 	
-	output.posLight = mul(output.position, lightVPMatrix);
+	output.posLight = mul(float4(input.position, 1.0f), mul(worldMatrix, lightVPMatrix));
 
 	//output.position = float4(input.position, 1.0f);
 	//output.normal = mul(float4(input.normal,0.0f), worldMatrix);

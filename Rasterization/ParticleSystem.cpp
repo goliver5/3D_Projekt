@@ -18,9 +18,28 @@ ParticleSystem::ParticleSystem()
 	//	particles.push_back(particlePositions);
 	//}
 
+	//for (int i = 0; i < NUMBER_OF_PARTICLES; i++)
+	//{
+	//	particles.push_back({ (float)cos(i + 1) / (float)NUMBER_OF_PARTICLES, 2.0f, (float)sin(i + 1) / (float)NUMBER_OF_PARTICLES });
+	//}
+
+	float LO = -10.0f;
+	float HI = 10.0f;
+	float yLOW = 30.0f;
+	float yHigh = 40.0f;
+
+	float xPos = 0.0f;
+	float yPos = 0.0f;
+	float zPos = 0.0f;
+
+
 	for (int i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
-		particles.push_back({ (float)cos(i + 1) / (float)NUMBER_OF_PARTICLES, 2.0f, (float)sin(i + 1) / (float)NUMBER_OF_PARTICLES });
+		xPos = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
+		yPos = yLOW + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yHigh - yLOW)));
+		zPos = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
+
+		particles.push_back({ xPos,yPos,zPos });
 	}
 	
 }

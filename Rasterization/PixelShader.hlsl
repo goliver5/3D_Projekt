@@ -1,5 +1,5 @@
 Texture2D testTexture : register(t0);
-SamplerState testSampler;
+SamplerState testSampler : register(s0);
 
 
 struct PixelShaderInput

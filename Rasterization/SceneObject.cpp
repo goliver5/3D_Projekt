@@ -58,7 +58,7 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
     int uvPlace = 0;
 
     //loopar igenom för hur många vertexData som behövs
-    for (int i = 0; i < vertices.size()/3; i++)
+    for (int i = 0; i < vertexForIndex.size()/3; i++)
     {
         std::vector<float> tempVert;
         std::vector<float> tempNorm;
@@ -92,8 +92,17 @@ void SceneObject::setGroundPos()
     world = DirectX::XMMatrixTranspose(world);
     world *= DirectX::XMMatrixTranslation(0.0f, -3.0f, 0.0f);
 
-    world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+    //world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
     world = DirectX::XMMatrixTranspose(world);
+}
+
+void SceneObject::setPosition(float x, float y, float z)
+{
+    world = DirectX::XMMatrixIdentity();
+    world *= DirectX::XMMatrixTranslation(x, y, z);
+    world = DirectX::XMMatrixTranspose(world);
+    XMStoreFloat4x4(&constantBuffer.getData().world, world);
+    constantBuffer.applyData();
 }
 
 void SceneObject::rotateObject(float x, float y, float z)
@@ -127,6 +136,12 @@ void SceneObject::noMemoryLeak()
     indexBuffer->Release();
 }
 
+void SceneObject::updateBuffer()
+{
+    XMStoreFloat4x4(&constantBuffer.getData().world, world);
+    constantBuffer.applyData();
+}
+
 void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
 {
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
@@ -150,4 +165,23 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
         counter += vertexSubMeshCounter[i];
     }
 
+}
+
+void SceneObject::drawCubeMap(ID3D11DeviceContext*& immediateContext)
+{
+    XMStoreFloat4x4(&constantBuffer.getData().world, world);
+    constantBuffer.applyData();
+    immediateContext->VSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
+    immediateContext->PSSetShaderResources(0, 1, &textureSRV);
+
+    UINT stride = sizeof(VertexData);
+    UINT offset = 0;
+    int size = vertexData.size();
+
+    //immediateContext->Draw(size, 0);
+    int counter = 0;
+   // immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+    immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+
+    immediateContext->Draw(size, 0);
 }

@@ -108,9 +108,9 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 					tempUv.push_back(uvs[tempNr[1] * 2 + 0]);
 					tempUv.push_back(uvs[tempNr[1] * 2 + 1]);
 					std::vector<float>tempNorm;
-					tempNorm.push_back(normals[(tempNr[0] * 3) + 0]);
-					tempNorm.push_back(normals[(tempNr[0] * 3) + 1]);
-					tempNorm.push_back(normals[(tempNr[0] * 3) + 2]);
+					tempNorm.push_back(normals[(tempNr[2] * 3) + 0]);
+					tempNorm.push_back(normals[(tempNr[2] * 3) + 1]);
+					tempNorm.push_back(normals[(tempNr[2] * 3) + 2]);
 
 					VertexData tempData(tempPos, tempNorm, tempUv);
 

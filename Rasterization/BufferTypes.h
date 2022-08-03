@@ -29,7 +29,7 @@ struct position // particle positions
 	float padding;
 };
 
-struct particleInformation
+struct particleInformation // Compute shader use for delta time and number of particles per thread
 {
 	float time;
 	float pPerThread;
@@ -42,4 +42,18 @@ struct cameraForwardUpvector
 	float SIZE = 0.12f;
 	DirectX::XMFLOAT3 forwardVector;
 	float padding2 = 0;
+};
+
+struct lightBuf
+{
+	DirectX::XMFLOAT3 lightPos;
+	float ambienceStrength;
+	DirectX::XMFLOAT3 cameraPos;
+	float padd;
+};
+
+struct cameraPosition
+{
+	DirectX::XMFLOAT3 cameraPos;
+	float padding;
 };
