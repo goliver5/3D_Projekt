@@ -3,6 +3,7 @@
 #include <sstream>
 #include<iostream>
 #include <chrono>
+#include<DirectXCollision.h>
 
 bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
 	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName)
@@ -17,6 +18,10 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 	std::string currentMTL;
 
 	int indexCounter = 0;
+
+	//DirectX::BoundingBox::CreateFromPoints()
+	DirectX::XMFLOAT3 lowestBoundingBoxPoint;
+	DirectX::XMFLOAT3 highestBoundingBoxPoint;
 	
 	////test för att lägga till nya vertiser med default konstruktor
 	//vertexForIndex.push_back(VertexData());

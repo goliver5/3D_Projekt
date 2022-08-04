@@ -2,11 +2,59 @@
 
 bool Tesselator::initiateHullShader(ID3D11Device* device)
 {
+	std::string shaderData;
+	std::ifstream reader;
+
+	shaderData.clear();
+	reader.close();
+	reader.open("../x64/Debug/HullShader.cso", std::ios::binary | std::ios::ate);
+	if (!reader.is_open())
+	{
+		return false;
+	}
+
+	reader.seekg(0, std::ios::end);
+	shaderData.reserve(static_cast<unsigned int>(reader.tellg()));
+	reader.seekg(0, std::ios::beg);
+
+	shaderData.assign((std::istreambuf_iterator<char>(reader)), std::istreambuf_iterator<char>());
+
+	HRESULT hr = device->CreateHullShader(shaderData.c_str(), shaderData.length(), nullptr, &hullShader);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	shaderData.clear();
+	reader.close();
 	return true;
 }
 
 bool Tesselator::initiateDomainShader(ID3D11Device* device)
 {
+	std::string shaderData;
+	std::ifstream reader;
+
+	shaderData.clear();
+	reader.close();
+	reader.open("../x64/Debug/DomainShader.cso", std::ios::binary | std::ios::ate);
+	if (!reader.is_open())
+	{
+		return false;
+	}
+
+	reader.seekg(0, std::ios::end);
+	shaderData.reserve(static_cast<unsigned int>(reader.tellg()));
+	reader.seekg(0, std::ios::beg);
+
+	shaderData.assign((std::istreambuf_iterator<char>(reader)), std::istreambuf_iterator<char>());
+
+	HRESULT hr = device->CreateDomainShader(shaderData.c_str(), shaderData.length(), nullptr, &domainShader);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	shaderData.clear();
+	reader.close();
 	return true;
 }
 
@@ -47,14 +95,18 @@ bool Tesselator::initiateRasterizerStates(ID3D11Device* device)
 Tesselator::Tesselator()
 {
 	wireFrameMode = false;
+	rasterizerDefault = nullptr;
+	wireFrameState = nullptr;
+	hullShader = nullptr;
+	domainShader = nullptr;
 }
 
 Tesselator::~Tesselator()
 {
 	rasterizerDefault->Release();
 	wireFrameState->Release();
-	//domainShader->Release();
-	//hullShader->Release();
+	domainShader->Release();
+	hullShader->Release();
 }
 
 bool Tesselator::initiateTesselator(ID3D11Device* device, ID3D11DeviceContext* immediateContext)
@@ -70,7 +122,7 @@ void Tesselator::setTesselatorState(ID3D11DeviceContext* immediateContext)
 {
 	immediateContext->HSSetShader(hullShader, nullptr, 0);
 	immediateContext->DSSetShader(domainShader, nullptr, 0);
-	immediateContext->RSSetState(rasterizerDefault);
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 }
 
 void Tesselator::setWireFrameMode(ID3D11DeviceContext* immediateContext, bool state)

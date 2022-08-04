@@ -35,6 +35,8 @@ Camera::Camera()
 	
 	position = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	this->rotVector = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+	DirectX::BoundingFrustum::CreateFromMatrix(frustum, projection);
 }
 
 bool Camera::initializeCamera(ID3D11Device* device, ID3D11DeviceContext*& immediateContext, ConstantBufferNew<VPMatrix>& cBuffer)
@@ -274,6 +276,12 @@ void Camera::setviewProjectionLightVertexShader(int startSlot, int numBuffers, I
 {
 	VPcBuffer->applyData();
 	immediateContext->VSSetConstantBuffers(startSlot, numBuffers, VPcBuffer->getReferenceOf());
+}
+
+void Camera::setHullShaderCameraPos(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext)
+{
+	cameraPositionBuffer.applyData();
+	immediateContext->HSSetConstantBuffers(startSlot, numBuffers, cameraPositionBuffer.getReferenceOf());
 }
 
 void Camera::setPSCameraPosition(ID3D11DeviceContext* immediateContext)

@@ -12,6 +12,18 @@ cbuffer cBuf : register(b0)
 	float padd;
 }
 
+cbuffer Spotlight1 : register(b1)
+{
+	float3 position;
+	float range;
+	float3 direction;
+	float cone;
+	float3 color;
+	float pad;
+	float3 attenuation;
+	float pad2;
+};
+
 struct PixelShaderInput
 {
 	float4 position : SV_POSITION;
@@ -38,7 +50,7 @@ PixelShaderOutput main(PixelShaderInput input)
 
 	float2 smTexcoord = float2(0.5f * input.posLight.x + 0.5f, -0.5f * input.posLight.y + 0.5f);
 	float depth = input.posLight.z / input.posLight.w;
-	float SHADOW_EPSILON = 0.000005f;
+	float SHADOW_EPSILON = 0.000125f;
 	float dx = 1.f / 1024.0f;
 	float dy = 1.0f / 576.0f;
 	
@@ -50,7 +62,7 @@ PixelShaderOutput main(PixelShaderInput input)
 	
 	float shadowco = (d0 + d1 + d2 + d3) / 4;
 	if (shadowco <= 0.3f)
-		shadowco = 0.1f;
+		shadowco = 0.3f;
 	
 	//float2 texelPos = smTexcoord * 1024.0f;
 	//float2 leps = frac(texelPos);

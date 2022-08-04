@@ -34,6 +34,7 @@ DomainShaderOutput main(HS_CONSTANT_DATA_OUTPUT input, float3 uvw : SV_DomainLoc
 	DomainShaderOutput output;
 	
 	output.position = patch[0].position * uvw.x + patch[1].position * uvw.y + patch[2].position * uvw.z;
+	output.worldPos = patch[0].worldPos * uvw.x + patch[1].worldPos * uvw.y + patch[2].worldPos * uvw.z;
 	output.uv = patch[0].uv * uvw.x + patch[1].uv * uvw.y + patch[2].uv * uvw.z;
 	output.normal = patch[0].normal * uvw.x + patch[1].normal * uvw.y + patch[2].normal * uvw.z;
 	output.posLight = patch[0].posLight * uvw.x + patch[1].posLight * uvw.y + patch[2].posLight * uvw.z;

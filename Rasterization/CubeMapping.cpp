@@ -198,7 +198,7 @@ bool CubeMapping::initialize(ID3D11Device* device, ID3D11DeviceContext* immediat
 }
 
 void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera,
-    ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout)
+    ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout, bool renderParticles)
 {
     //roterar kameran i varje draw call ritar till rtv, clear mellan varje draw call
     //6 draw calls
@@ -222,13 +222,15 @@ void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<S
         {
             sceneObjects[j].draw(immediateContext);
         }
-
-        immediateContext->GSSetShader(geometryShader, nullptr, 0);
-        immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
-        particleSystem.draw(immediateContext, mainCamera);
-        immediateContext->GSSetShader(nullptr, nullptr, 0);
-        immediateContext->PSSetShader(nullptr, nullptr, 0);
-        immediateContext->VSSetShader(nullptr, nullptr, 0);
+        if (renderParticles)
+        {
+            immediateContext->GSSetShader(geometryShader, nullptr, 0);
+            immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+            particleSystem.draw(immediateContext, mainCamera);
+            immediateContext->GSSetShader(nullptr, nullptr, 0);
+            immediateContext->PSSetShader(nullptr, nullptr, 0);
+            immediateContext->VSSetShader(nullptr, nullptr, 0);
+        }
     }
     immediateContext->IASetInputLayout(inputLayout);
     immediateContext->VSSetShader(vShader, nullptr, 0);

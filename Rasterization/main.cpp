@@ -31,6 +31,7 @@
 #include "ShadowMapping.h"
 #include "Tesselator.h"
 #include "CubeMapping.h"
+#include "SpotLight.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -39,7 +40,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
 	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows,
-	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode)
+	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode, SpotLight& spotlight)
 {
 	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -88,13 +89,16 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	shadows.setSRV(immediateContext);
+	tesselator.setTesselatorState(immediateContext);
+	camera.setHullShaderCameraPos(0, 1, immediateContext);
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i].draw(immediateContext);
 	}
 	shadows.setSRVNull(immediateContext);
-
-	//immediateContext->CSSetShader()
+	immediateContext->HSSetShader(nullptr, nullptr, 0);
+	immediateContext->DSSetShader(nullptr, nullptr, 0);
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//clear innan
 	//immediateContext->OMSetRenderTargets(0, nullptr, nullptr);
@@ -114,7 +118,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 	defferedRenderer->clearTemp(immediateContext);
 
-	cubeMapping.firstPass(immediateContext, testScene, particleSystem, camera, geometryShader, pixelParticleShader, vShader, inputLayout);
+	cubeMapping.firstPass(immediateContext, testScene, particleSystem, camera, geometryShader, pixelParticleShader, vShader, inputLayout, renderParticles);
 	//utanför funktionen så att imgui och cubemappen också renderas
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 
@@ -221,6 +225,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ConstantBufferNew<VPMatrix> VPcBuffer;
 	Camera camera;
 
+	SpotLight lightTest;
+
 	static const int NROFTEXTURES = 4;
 	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[2];
 	ID3D11ShaderResourceView* textureSRVs[NROFTEXTURES];
@@ -291,6 +297,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
 	if (!tesselator.initiateTesselator(device, immediateContext)) return -1;
 	if (!cubeMapping.initialize(device, immediateContext))return -1;
+	if (!lightTest.initialize(device, immediateContext)) return -1;
 
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
@@ -326,7 +333,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
 				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode);
+				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest);
 
 			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode);
 			

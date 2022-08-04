@@ -1,6 +1,7 @@
 #pragma once
 //#include "BufferTypes.h"
 #include "ConstantBufferNew.h"
+#include<DirectXCollision.h>
 
 class Camera
 {
@@ -17,6 +18,7 @@ private:
 	const DirectX::XMVECTOR DEFAULT_UP = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	const DirectX::XMVECTOR DEFAULT_FORWARD = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
+	DirectX::BoundingFrustum frustum;
 	
 	DirectX::XMFLOAT3 rot;
 	DirectX::XMFLOAT3 pos;
@@ -55,6 +57,7 @@ public:
 	cameraForwardUpvector particleTempCamera(ID3D11DeviceContext* immediateContext);
 
 	void setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext *immediateContext);
+	void setHullShaderCameraPos(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext);
 	void setPSCameraPosition(ID3D11DeviceContext* immediateContext);
 
 	DirectX::XMVECTOR getcameraPosition();

@@ -57,3 +57,20 @@ struct cameraPosition
 	DirectX::XMFLOAT3 cameraPos;
 	float padding;
 };
+
+struct dirLight
+{
+
+};
+
+struct spotLight
+{
+	DirectX::XMFLOAT3 position;
+	float range;
+	DirectX::XMFLOAT3 direction;
+	float cone;
+	DirectX::XMFLOAT3 color;
+	float pad;
+	DirectX::XMFLOAT3 attenuation;
+	float pad2;
+};

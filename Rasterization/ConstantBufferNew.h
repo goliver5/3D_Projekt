@@ -12,7 +12,7 @@ private:
 	T bufferData;
 public:
 	ConstantBufferNew();
-	HRESULT Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	ID3D11Buffer* const* getReferenceOf();
 	ID3D11Buffer* Get()const;
 	T &getData();
@@ -27,7 +27,7 @@ ConstantBufferNew<T>::ConstantBufferNew()
 }
 
 template<class T>
-HRESULT ConstantBufferNew<T>::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+bool ConstantBufferNew<T>::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	this->deviceContext = deviceContext;
 
