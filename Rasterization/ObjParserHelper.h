@@ -9,7 +9,7 @@ struct objectStruct
 	std::vector<float> uvs;
 	std::vector<VertexData> vertexForIndex;
 	std::vector<int> vertexSubMeshCounter;
-	std::vector<int> indices
+	std::vector<int> indices;
 };
 
 void ObjParserHelper(std::vector<objectStruct>& objectInformation);
