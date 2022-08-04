@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "SceneObject.h"
+#include "ParticleSystem.h"
 
 class CubeMapping
 {
@@ -45,6 +46,7 @@ public:
 
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
 
-	void firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects);
+	void firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera, 
+		ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout);
 	void drawCube(ID3D11DeviceContext* immediateContext);
 };

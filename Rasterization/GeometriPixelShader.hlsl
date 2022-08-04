@@ -50,7 +50,7 @@ PixelShaderOutput main(PixelShaderInput input)
 	
 	float shadowco = (d0 + d1 + d2 + d3) / 4;
 	if (shadowco <= 0.3f)
-		shadowco = 0.4f;
+		shadowco = 0.1f;
 	
 	//float2 texelPos = smTexcoord * 1024.0f;
 	//float2 leps = frac(texelPos);

@@ -57,4 +57,5 @@ public:
 	void updateParticleInformation();
 
 	void draw(ID3D11DeviceContext* immediateContext, Camera& camera);
+	void dispatchParticles(ID3D11DeviceContext* immediateContext, Camera& camera);
 };

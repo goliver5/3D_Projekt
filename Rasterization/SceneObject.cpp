@@ -54,33 +54,33 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 
 	ParseOBJFile(vertices, normals, uv, vertexForIndex, vertexSubMeshCounter, indices, fileName);
 	
-    int verticeplace = 0;
-    int uvPlace = 0;
+    UINT verticeplace = 0;
+    UINT uvPlace = 0;
 
     //loopar igenom för hur många vertexData som behövs
-    for (int i = 0; i < vertexForIndex.size()/3; i++)
-    {
-        std::vector<float> tempVert;
-        std::vector<float> tempNorm;
-        std::vector<float> tempUv;
+    //for (int i = 0; i < vertices.size()/3; i++)
+    //{
+    //    std::vector<float> tempVert;
+    //    std::vector<float> tempNorm;
+    //    std::vector<float> tempUv;
 
-        for (int i = 0; i < 3; i++)
-        {
-            tempVert.push_back(vertices[verticeplace]);
-            tempNorm.push_back(normals[verticeplace]);
-            verticeplace++;
-        }
+    //    for (int i = 0; i < 3; i++)
+    //    {
+    //        tempVert.push_back(vertices[verticeplace]);
+    //        tempNorm.push_back(normals[verticeplace]);
+    //        verticeplace++;
+    //    }
 
-        for (int i = 0; i < 2; i++)
-        {
-            tempUv.push_back(uv[uvPlace]);
-            uvPlace++;
-        }
-        vertexData.push_back(VertexData(tempVert, tempNorm, tempUv));
-        tempVert.clear();
-        tempNorm.clear();
-        tempUv.clear();
-    }
+    //    for (int i = 0; i < 2; i++)
+    //    {
+    //        tempUv.push_back(uv[uvPlace]);
+    //        uvPlace++;
+    //    }
+    //    vertexData.push_back(VertexData(tempVert, tempNorm, tempUv));
+    //    tempVert.clear();
+    //    tempNorm.clear();
+    //    tempUv.clear();
+    //}
     createVertexBuffer(device);
     createIndexBuffer(device);
     setGroundPos();

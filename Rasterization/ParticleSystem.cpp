@@ -186,12 +186,16 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 
 	ID3D11Buffer* tempBuffer = nullptr;
 	immediateContext->IASetVertexBuffers(0, 1, &tempBuffer, &stride, &offset);
+	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
+void ParticleSystem::dispatchParticles(ID3D11DeviceContext* immediateContext, Camera& camera)
+{
 	immediateContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	immediateContext->CSSetConstantBuffers(0, 1, particleInfo.getReferenceOf());
 
 	updateParticleInformation();
-	
+
 	immediateContext->Dispatch(50, 1, 1);
 
 	ID3D11UnorderedAccessView* tempUav = nullptr;

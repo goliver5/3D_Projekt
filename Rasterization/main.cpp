@@ -51,9 +51,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	tesselator.setWireFrameMode(immediateContext, WireFrameMode);
 
 
-
 	//camera.setVSBuffer(immediateContext);
-	//tesselator.setTesselatorState(immediateContext);
 	immediateContext->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
 
 	immediateContext->IASetInputLayout(inputLayout);
@@ -65,7 +63,6 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
-	cubeMapping.firstPass(immediateContext, testScene);
 
 	//shadow prepass
 	//immediateContext->OMSetRenderTargets(1, &rtv, nullptr);
@@ -88,7 +85,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	//ta väck för forward rendering och måste ta väck defferedrenderer
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 	// deferred rendering börjar första pass (light pass)
-	//defferedRenderer->firstPass(immediateContext, dsView);
+	defferedRenderer->firstPass(immediateContext, dsView);
 
 	shadows.setSRV(immediateContext);
 	for (int i = 0; i < testScene.size(); i++)
@@ -104,20 +101,20 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	
 
 	//deferred rendering andra pass för ljuset
-	//ID3D11RenderTargetView* nullRtv = nullptr;
-	//immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
-	//immediateContext->CSSetShader(cShader, nullptr, 0);
-	//immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
-	//defferedRenderer->lightPass(immediateContext);
-	//immediateContext->Dispatch(32, 32, 1);
-	///*defferedRenderer->clearRenderTargets(immediateContext);*/
+	ID3D11RenderTargetView* nullRtv = nullptr;
+	immediateContext->OMSetRenderTargets(1, &nullRtv, nullptr);
+	immediateContext->CSSetShader(cShader, nullptr, 0);
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
+	defferedRenderer->lightPass(immediateContext);
+	immediateContext->Dispatch(32, 32, 1);
+	/*defferedRenderer->clearRenderTargets(immediateContext);*/
 
-	//ID3D11UnorderedAccessView* nullUav = nullptr;
-	//immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+	ID3D11UnorderedAccessView* nullUav = nullptr;
+	immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
-	//defferedRenderer->clearTemp(immediateContext);
+	defferedRenderer->clearTemp(immediateContext);
 
-
+	cubeMapping.firstPass(immediateContext, testScene, particleSystem, camera, geometryShader, pixelParticleShader, vShader, inputLayout);
 	//utanför funktionen så att imgui och cubemappen också renderas
 	immediateContext->OMSetRenderTargets(1, &rtv, dsView);
 
@@ -137,6 +134,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 		immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
 		immediateContext->CSSetShader(particleComputeShader, nullptr, 0);
 		particleSystem.draw(immediateContext, camera);
+		particleSystem.dispatchParticles(immediateContext, camera);
 	}
 	//varning för nästa draw call detta fixar
 	ID3D11ShaderResourceView* nullrsv = nullptr;
@@ -223,7 +221,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ConstantBufferNew<VPMatrix> VPcBuffer;
 	Camera camera;
 
-	static const int NROFTEXTURES = 2;
+	static const int NROFTEXTURES = 4;
 	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[2];
 	ID3D11ShaderResourceView* textureSRVs[NROFTEXTURES];
 	//std::vector<ID3D11ShaderResourceView*> textureSRVs;
@@ -276,7 +274,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject> testScene;
 
-	SceneObject cubeObject(device, immediateContext, textureSRVs[0], "morg_sphere.obj");
+	SceneObject cubeObject(device, immediateContext, textureSRVs[0], "Sphere.obj");
 
 	CubeMapping cubeMapping(cubeObject, WIDTH, HEIGHT);
 
@@ -284,6 +282,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
 	//golvet
 	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "ground.obj"));
+	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[2], "torus.obj"));
+	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[3], "BusterSword.obj"));
+	testScene[3].setPosition(0.0f, -3.0f, 15.0f);
+	testScene[2].setPosition(3.0f, 0.0f, 10.0f);
 	testScene[1].setGroundPos();
 
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;

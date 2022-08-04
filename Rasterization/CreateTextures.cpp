@@ -46,10 +46,12 @@ bool SetupTextures(ID3D11Device* device, ID3D11ShaderResourceView* textureSRVs[]
 {
 
     //ÄNDRA I MAIN PÅ ARRAY STORLEKEN SÅ MAN INTE GÅR UTANFÖR 
-    static const int nrOfTextures = 2;
+    static const int nrOfTextures = 4;
     std::string fileName[nrOfTextures];
     fileName[0] = "models/beel.png";
     fileName[1] = "models/kirby.jpg";
+    fileName[2] = "models/Red.png";
+    fileName[3] = "models/bustercolor.png";
     ID3D11Texture2D *texture;
 
     for (int i = 0; i < nrOfTextures; i++)

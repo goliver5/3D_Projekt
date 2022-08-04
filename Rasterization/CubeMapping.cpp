@@ -181,8 +181,8 @@ bool CubeMapping::initialize(ID3D11Device* device, ID3D11DeviceContext* immediat
     camera.initializeCamera(device, immediateContext, VPBuf);
     cameraPositionBuffer.Initialize(device, immediateContext);
 
-    camera.setPosition(0.0f, 0.0f, 2.0f);
-    cubeObject->setPosition(0.0f, 0.0f, 2.0f);
+    camera.setPosition(-2.0f, 0.0f, 6.0f);
+    cubeObject->setPosition(-2.0f, 0.0f, 6.0f);
 
     float tempnintendo = DirectX::XM_PI / 2;
 
@@ -197,18 +197,21 @@ bool CubeMapping::initialize(ID3D11Device* device, ID3D11DeviceContext* immediat
 	return true;
 }
 
-void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects)
+void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera,
+    ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout)
 {
     //roterar kameran i varje draw call ritar till rtv, clear mellan varje draw call
     //6 draw calls
     //immediateContext->VSSetShader()
-    immediateContext->PSSetShader(SamplepixelShader, nullptr, 0);
     immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     float clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 
     for (int i = 0; i < 6; i++)
     {
+        immediateContext->IASetInputLayout(inputLayout);
+        immediateContext->VSSetShader(vShader, nullptr, 0);
+        immediateContext->PSSetShader(SamplepixelShader, nullptr, 0);
         camera.setRotation(cameraRotation[i].x, cameraRotation[i].y, cameraRotation[i].z);
         camera.setviewProjectionLightVertexShader(1, 1, immediateContext);
         immediateContext->ClearRenderTargetView(cubeRtv[i], clearColor);
@@ -219,8 +222,16 @@ void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<S
         {
             sceneObjects[j].draw(immediateContext);
         }
-    }
 
+        immediateContext->GSSetShader(geometryShader, nullptr, 0);
+        immediateContext->PSSetShader(pixelParticleShader, nullptr, 0);
+        particleSystem.draw(immediateContext, mainCamera);
+        immediateContext->GSSetShader(nullptr, nullptr, 0);
+        immediateContext->PSSetShader(nullptr, nullptr, 0);
+        immediateContext->VSSetShader(nullptr, nullptr, 0);
+    }
+    immediateContext->IASetInputLayout(inputLayout);
+    immediateContext->VSSetShader(vShader, nullptr, 0);
     ID3D11RenderTargetView* nullRtv2 = nullptr;
     immediateContext->OMSetRenderTargets(1, &nullRtv2, nullptr);
    /* ID3D11ShaderResourceView* nullrsv = nullptr;
