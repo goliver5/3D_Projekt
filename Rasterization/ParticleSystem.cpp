@@ -151,6 +151,7 @@ bool ParticleSystem::initiateParticleSystem(ID3D11Device* device, ID3D11DeviceCo
 
 	identityMatrix.applyData();
 	//cameraBuffer.applyData();
+	particleSize = 0.12f;
 
 	return true;
 }
@@ -159,6 +160,16 @@ void ParticleSystem::updateParticleInformation()
 {
 	particleInfo.getData().time += (1.0f / 120.0f);
 	particleInfo.applyData();
+}
+
+float ParticleSystem::getParticleSize()
+{
+	return cameraBuffer.getData().SIZE;
+}
+
+void ParticleSystem::setParticleSize(float size)
+{
+	particleSize = size;
 }
 
 void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
@@ -173,7 +184,7 @@ void ParticleSystem::draw(ID3D11DeviceContext* immediateContext, Camera& camera)
 
 	//immediateContext->GSSetShader()
 	cameraBuffer.getData() = camera.particleTempCamera(immediateContext);
-	cameraBuffer.getData().SIZE = 0.12f;
+	cameraBuffer.getData().SIZE = particleSize;
 	cameraBuffer.applyData();
 
 	immediateContext->VSSetConstantBuffers(0, 1, identityMatrix.getReferenceOf());

@@ -148,11 +148,14 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 }
 
-void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode)
+void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode, ParticleSystem& pSystem, FrustumCulling& fCulling)
 {
 	
 	DirectX::XMFLOAT3 camPos;
 	DirectX::XMStoreFloat3(&camPos, camera.getcameraPosition());
+
+
+	float particleSize = pSystem.getParticleSize();
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -166,10 +169,12 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 			ImGui::Checkbox("ChangeCamera", &changeCamera);
 			ImGui::Checkbox("wireFrameMode", &WireFrameMode);
 			//ImGui::Checkbox("Im lazy", &rotation);
-			//ImGui::SliderInt("Delta Time", &nrOfBullets, 1, 5);
+			ImGui::SliderFloat("ParticleSize", &particleSize, 0.0f, 1.0f);
 		}
 		ImGui::End();
 	}
+
+	pSystem.setParticleSize(particleSize);
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -338,7 +343,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest);
 
-			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode);
+			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
 			
 		}
 		swapChain->Present(0, 0);

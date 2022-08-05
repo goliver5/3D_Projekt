@@ -29,6 +29,8 @@ class ParticleSystem
 {
 private:
 
+	float particleSize;
+
 	/*std::vector<Particles> particles;*/
 	std::vector<DirectX::XMFLOAT3> particles;
 	ID3D11UnorderedAccessView* uav;
@@ -55,6 +57,9 @@ public:
 	bool initiateParticleSystem(ID3D11Device* device, ID3D11DeviceContext*& immediateContext);
 
 	void updateParticleInformation();
+
+	float getParticleSize();
+	void setParticleSize(float size);
 
 	void draw(ID3D11DeviceContext* immediateContext, Camera& camera);
 	void dispatchParticles(ID3D11DeviceContext* immediateContext, Camera& camera);
