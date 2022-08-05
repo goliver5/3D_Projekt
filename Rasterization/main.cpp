@@ -38,10 +38,10 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
 	ID3D11Buffer* vertexBuffer, ID3D11SamplerState* sampler, 
 	ID3D11Buffer* lightConstantBuffer, ID3D11ComputeShader* cShader, ID3D11UnorderedAccessView* backBufferUAV,
-	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject>& testScene,
+	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject*>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
 	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows,
-	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode, SpotLight& spotlight)
+	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode, SpotLight& spotlight, Camera& secondCamera)
 {
 	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -69,16 +69,28 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	//shadow prepass
 	//immediateContext->OMSetRenderTargets(1, &rtv, nullptr);
 	
-	camera.setVSBuffer(immediateContext);
+	if (changeCamera)
+	{
+		camera.setVSBuffer(immediateContext);
+	}
+	else
+	{
+		secondCamera.setVSBuffer(immediateContext);
+	}
 	shadows.shadowFirstPass(immediateContext, testScene);
 	//sätter om viewprojection matrisen
 
 	//camera.setVSBuffer(immediateContext); GÖR REDAN DET ETT PAR RADER UPP MEN KANSKE GÖRA OM DET EFTER SHADOWS DRAW CALL
 
 	//sätter skuggans camera till main kamera
-	if (!changeCamera)
+	if (changeCamera)
 	{
-		shadows.setShadowToCurrentCamera(immediateContext);
+		//shadows.setShadowToCurrentCamera(immediateContext);
+		camera.setVSBuffer(immediateContext);
+	}
+	else
+	{
+		secondCamera.setVSBuffer(immediateContext);
 	}
 
 	immediateContext->VSSetShader(vShader, nullptr, 0);
@@ -94,7 +106,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	camera.setHullShaderCameraPos(0, 1, immediateContext);
 	for (int i = 0; i < testScene.size(); i++)
 	{
-		testScene[i].draw(immediateContext);
+		testScene[i]->draw(immediateContext);
 	}
 	shadows.setSRVNull(immediateContext);
 	immediateContext->HSSetShader(nullptr, nullptr, 0);
@@ -126,11 +138,21 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	//sätter kamerans position till pixelshadern
 	camera.setPSCameraPosition(immediateContext);
 	camera.setVSBuffer(immediateContext);
-
 	//camera.setviewProjectionLightVertexShader(0, 1, immediateContext);
 	immediateContext->VSSetShader(vShader, nullptr, 0);
 	//immediateContext->PSSetSamplers(0, 1, &sampler);
-	cubeMapping.drawCube(immediateContext);
+
+	if (changeCamera)
+	{
+		camera.setVSBuffer(immediateContext);
+		cubeMapping.drawCube(immediateContext);
+	}
+	else
+	{
+		secondCamera.setVSBuffer(immediateContext);
+	}
+
+
 
 	if (renderParticles == true)
 	{
@@ -229,7 +251,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	
 	ConstantBufferNew<WMatrix> constantBufferNew;
 	ConstantBufferNew<VPMatrix> VPcBuffer;
+	ConstantBufferNew<VPMatrix> secondCameraBuffer;
 	Camera camera;
+	Camera secondCamera;
 
 	SpotLight lightTest;
 
@@ -284,7 +308,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ImGui_ImplDX11_Init(device, immediateContext);
 
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
-	std::vector<SceneObject> testScene;
+	std::vector<SceneObject*> testScene;
 
 	SceneObject cubeObject(device, immediateContext, textureSRVs[0], "Sphere.obj");
 
@@ -292,15 +316,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	FrustumCulling frustumCulling;
 
+	for (int i = 0; i < 10; i++)
+	{
+		testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
+		testScene[i]->setPosition(i * 5.0f, 0.0f, 0.0f);
+	}
+
+
 	//roterande kub
-	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
 	//golvet
-	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "ground.obj"));
-	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[2], "torus.obj"));
-	testScene.push_back(SceneObject(device, immediateContext, textureSRVs[3], "BusterSword.obj"));
-	testScene[3].setPosition(0.0f, -3.0f, 15.0f);
-	testScene[2].setPosition(3.0f, 0.0f, 10.0f);
-	testScene[1].setGroundPos();
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], "ground.obj"));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[2], "torus.obj"));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[3], "BusterSword.obj"));
+	testScene[3]->setPosition(0.0f, -3.0f, 15.0f);
+	testScene[2]->setPosition(3.0f, 0.0f, 10.0f);
+	testScene[1]->setGroundPos();
+
 
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
 	if (!tesselator.initiateTesselator(device, immediateContext)) return -1;
@@ -309,7 +341,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
+	secondCamera.initializeCamera(device, immediateContext, secondCameraBuffer);
+	secondCamera.setPosition(0.0f, 90.0f, 0.0f);
+	secondCamera.setRotation(1.5f, 0.0f, 0.0f);
 	MSG msg = {};
+
+	frustumCulling.culling(testScene);
+
+	std::vector<SceneObject*> currentScene;
+
+	currentScene = frustumCulling.getScene();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -327,21 +368,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			if (GetAsyncKeyState('R'))
 			{
-				testScene.push_back(SceneObject(device, immediateContext, textureSRVs[0], "cubeMaterial.obj"));
+				currentScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], "cubeMaterial.obj"));
 			}
 			//for (int i = 2; i < testScene.size(); i++)
 			//{
 			//	testScene[i].tempUpdate();
 			//}
 
-			testScene[0].tempUpdate();
+			//roterande kub
+			testScene[0]->tempUpdate();
+
+			for (int i = 0; i < testScene.size(); i++)
+			{
+				testScene[i]->update();
+			}
 
 			//lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest);
+				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest, secondCamera);
 
 			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
 			
@@ -364,7 +411,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 	for (int i = 0; i < testScene.size(); i++)
 	{
-		testScene[i].noMemoryLeak();
+		testScene[i]->noMemoryLeak();
 	}
 
 	

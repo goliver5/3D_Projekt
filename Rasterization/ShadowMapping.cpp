@@ -133,7 +133,7 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 	return true;
 }
 
-void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects)
+void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*>& sceneObjects)
 {
 	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	immediateContext->VSSetShader(vertexShadowShader, nullptr, 0);
@@ -156,7 +156,7 @@ void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::
 
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
-		sceneObjects[i].draw(immediateContext);
+		sceneObjects[i]->draw(immediateContext);
 	}
 
 	//används för test sätter camera bufferns viewprojection till shadows camera

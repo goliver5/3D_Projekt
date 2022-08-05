@@ -32,7 +32,7 @@ public:
 	~ShadowMapping();
 
 	bool initiateShadows(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
-	void shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects);
+	void shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*> &sceneObjects);
 	void setSRV(ID3D11DeviceContext* immediateContext);
 	void setSRVNull(ID3D11DeviceContext* immediateContext);
 	void setCameraBuffer(ID3D11DeviceContext* immediateContext);

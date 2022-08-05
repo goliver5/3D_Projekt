@@ -197,7 +197,7 @@ bool CubeMapping::initialize(ID3D11Device* device, ID3D11DeviceContext* immediat
 	return true;
 }
 
-void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject>& sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera,
+void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*>& sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera,
     ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout, bool renderParticles)
 {
     //roterar kameran i varje draw call ritar till rtv, clear mellan varje draw call
@@ -220,7 +220,7 @@ void CubeMapping::firstPass(ID3D11DeviceContext* immediateContext, std::vector<S
 
         for (int j = 0; j < sceneObjects.size(); j++)
         {
-            sceneObjects[j].draw(immediateContext);
+            sceneObjects[j]->draw(immediateContext);
         }
         if (renderParticles)
         {

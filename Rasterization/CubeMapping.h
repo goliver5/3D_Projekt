@@ -46,7 +46,7 @@ public:
 
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* immediateContext);
 
-	void firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject> &sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera, 
+	void firstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*> &sceneObjects, ParticleSystem& particleSystem, Camera& mainCamera, 
 		ID3D11GeometryShader* geometryShader, ID3D11PixelShader* pixelParticleShader, ID3D11VertexShader* vShader, ID3D11InputLayout* inputLayout, bool renderParticles);
 	void drawCube(ID3D11DeviceContext* immediateContext);
 };

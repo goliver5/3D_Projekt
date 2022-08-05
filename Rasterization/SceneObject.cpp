@@ -44,6 +44,14 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 {
     textureSRV = textureSRVs;
 
+
+    DirectX::XMFLOAT3 temp1(0.0f,0.0f,0.0f);
+    DirectX::XMVECTOR point1 = DirectX::XMLoadFloat3(&temp1);
+    DirectX::XMFLOAT3 temp2(10.0f,10.0f,10.0f);
+    DirectX::XMVECTOR point2 = DirectX::XMLoadFloat3(&temp2);
+
+    bBox.CreateFromPoints(bBox, point1, point2);
+
     constantBuffer.Initialize(device, immediateContext);
     world = DirectX::XMMatrixIdentity();
     DirectX::XMStoreFloat4x4(&constantBuffer.getData().world, world);
@@ -51,6 +59,8 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 	std::vector<float> vertices;
 	std::vector<float> normals;
 	std::vector<float> uv;
+
+
 
 	ParseOBJFile(vertices, normals, uv, vertexForIndex, vertexSubMeshCounter, indices, fileName);
 	
@@ -136,10 +146,19 @@ void SceneObject::noMemoryLeak()
     indexBuffer->Release();
 }
 
-void SceneObject::updateBuffer()
+void SceneObject::update()
 {
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
     constantBuffer.applyData();
+
+    //så den inte är transposed
+    DirectX::XMMATRIX tempWorld = DirectX::XMMatrixTranspose(world);
+    bBox.Transform(bBox, tempWorld);
+}
+
+DirectX::BoundingBox SceneObject::getBoundingBox()
+{
+    return bBox;
 }
 
 void SceneObject::draw(ID3D11DeviceContext*& immediateContext)

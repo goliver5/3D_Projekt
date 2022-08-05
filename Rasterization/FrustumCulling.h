@@ -30,11 +30,15 @@ class FrustumCulling
 private:
 	Node* rootNode;	
 
+	std::vector<SceneObject*> currentScene;
 	void createBoundingBoxes(Node* node, int depth, DirectX::XMFLOAT3 topLeft, float width, float height);
 	void createTree(Node* node, int depth);
+	void checkIntersectionAllObjects(Node* rootNode, std::vector<SceneObject*> allObjects);
+	//std::vector<Node*> getIntersectingNodes(Node* rootnode);
 public:
 	FrustumCulling();
 
-	DirectX::XMFLOAT3 getBBPpositions();
-	bool checkifObjectExist(Node node, SceneObject *object);
+	void culling(std::vector<SceneObject*> allObjects);
+	void getCulledTree();
+	std::vector<SceneObject*> getScene();
 };

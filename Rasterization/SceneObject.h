@@ -3,6 +3,7 @@
 #include "OBJParser.h"
 #include "ConstantBufferNew.h"
 #include <d3d11.h>
+#include <DirectXCollision.h>
 
 class SceneObject
 {
@@ -17,6 +18,8 @@ private:
 	std::vector<VertexData> vertexForIndex;
 	std::vector<int>vertexSubMeshCounter;
 	std::vector<int> indices;
+
+	DirectX::BoundingBox bBox;
 
 	ID3D11ShaderResourceView* textureSRV;
 	/*VertexData triangle[6] =
@@ -42,7 +45,9 @@ public:
 	void tempUpdate();
 	void noMemoryLeak();
 
-	void updateBuffer();
+	void update();
+
+	DirectX::BoundingBox getBoundingBox();
 
 	void draw(ID3D11DeviceContext*& immediateContext);
 	void drawCubeMap(ID3D11DeviceContext*& immediateContext);
