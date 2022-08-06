@@ -1,6 +1,7 @@
 #pragma once
 #include "objectStruct.h"
 #include "OBJParser.h"
+#include "ObjParserHelper.h"
 #include "ConstantBufferNew.h"
 #include <d3d11.h>
 #include <DirectXCollision.h>
@@ -16,8 +17,9 @@ private:
 	DirectX::XMMATRIX world;
 
 	std::vector<VertexData> vertexForIndex;
-	std::vector<int>vertexSubMeshCounter;
+	std::vector<int> vertexSubMeshCounter;
 	std::vector<int> indices;
+
 
 	DirectX::BoundingBox bBox;
 
@@ -36,7 +38,7 @@ protected:
 	HRESULT createVertexBuffer(ID3D11Device* device);
 	bool createIndexBuffer(ID3D11Device* device);
 public:
-	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, std::string fileName);
+	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, objectStruct objectData);
 
 
 	void setGroundPos();

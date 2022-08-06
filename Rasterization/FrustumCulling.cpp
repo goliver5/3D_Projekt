@@ -96,7 +96,7 @@ void FrustumCulling::createTree(Node* node, int depth)
 
 void FrustumCulling::checkIntersectionAllObjects(Node* node, std::vector<SceneObject*> allObjects)
 {
-
+	node->objects.clear();
 	bool isLeave = false;
 	if (node->demkids.size() == 0)
 	{
@@ -108,11 +108,14 @@ void FrustumCulling::checkIntersectionAllObjects(Node* node, std::vector<SceneOb
 		{
 			checkIntersectionAllObjects(node->demkids[i], allObjects);
 		}
-		if (isLeave)
+	}
+	if (isLeave)
+	{
+		//om inte lika med noll
+		for (int i = 0; i < allObjects.size(); i++)
 		{
-			//om inte lika med noll
 			int temp = node->boundingBox.Contains(allObjects[i]->getBoundingBox());
-			if(temp != 0)
+			if (temp != 0)
 			{
 				bool wow = true;
 				node->objects.push_back(allObjects[i]);
@@ -135,5 +138,5 @@ void FrustumCulling::getCulledTree()
 std::vector<SceneObject*> FrustumCulling::getScene()
 {
 
-	return rootNode->demkids[0]->demkids[1]->demkids[1]->objects;
+	return rootNode->demkids[3]->demkids[0]->demkids[3]->objects;
 }

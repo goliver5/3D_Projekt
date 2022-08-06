@@ -1,5 +1,6 @@
 #pragma once
 #include "objectStruct.h"
+#include "OBJParser.h"
 #include <string>
 
 struct objectStruct
@@ -12,4 +13,4 @@ struct objectStruct
 	std::vector<int> indices;
 };
 
-void ObjParserHelper(std::vector<objectStruct>& objectInformation);
+void ObjParserHelper(std::vector<objectStruct>& output);

@@ -33,6 +33,7 @@
 #include "CubeMapping.h"
 #include "SpotLight.h"
 #include "FrustumCulling.h"
+#include "ObjParserHelper.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -257,6 +258,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	SpotLight lightTest;
 
+
+
 	static const int NROFTEXTURES = 4;
 	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[2];
 	ID3D11ShaderResourceView* textureSRVs[NROFTEXTURES];
@@ -303,6 +306,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	{
 		return -1;
 	}
+	std::vector<objectStruct> allObjectData;
+	
+	ObjParserHelper(allObjectData);
 
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(device, immediateContext);
@@ -310,7 +316,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//tempObject.rotateObject(1.5, 0.0f, 0.0f);
 	std::vector<SceneObject*> testScene;
 
-	SceneObject cubeObject(device, immediateContext, textureSRVs[0], "Sphere.obj");
+	SceneObject cubeObject(device, immediateContext, textureSRVs[0], allObjectData[1]);
 
 	CubeMapping cubeMapping(cubeObject, WIDTH, HEIGHT);
 
@@ -318,17 +324,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	for (int i = 0; i < 10; i++)
 	{
-		testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
+		testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], allObjectData[0]));
 		testScene[i]->setPosition(i * 5.0f, 0.0f, 0.0f);
 	}
 
 
 	//roterande kub
-	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], "cubeMaterial.obj"));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], allObjectData[1]));
 	//golvet
-	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], "ground.obj"));
-	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[2], "torus.obj"));
-	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[3], "BusterSword.obj"));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], allObjectData[4]));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[2], allObjectData[3]));
+	testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[3], allObjectData[2]));
 	testScene[3]->setPosition(0.0f, -3.0f, 15.0f);
 	testScene[2]->setPosition(3.0f, 0.0f, 10.0f);
 	testScene[1]->setGroundPos();
@@ -368,7 +374,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			if (GetAsyncKeyState('R'))
 			{
-				currentScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], "cubeMaterial.obj"));
+				currentScene.push_back(new SceneObject(device, immediateContext, textureSRVs[0], allObjectData[0]));
 			}
 			//for (int i = 2; i < testScene.size(); i++)
 			//{
@@ -383,11 +389,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				testScene[i]->update();
 			}
 
+			//frustumCulling.culling(testScene);
+			currentScene = frustumCulling.getScene();
+
 			//lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest, secondCamera);
 
 			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
