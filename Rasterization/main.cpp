@@ -325,7 +325,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	for (int i = 0; i < 10; i++)
 	{
 		testScene.push_back(new SceneObject(device, immediateContext, textureSRVs[1], allObjectData[0]));
-		testScene[i]->setPosition(i * 5.0f, 0.0f, 0.0f);
+		testScene[i]->setPosition(i * 10.0f, 0.0f, 0.0f);
 	}
 
 
@@ -347,13 +347,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
+	//camera.setRotation(0.0f, 1.0f, 0.0f);
 	secondCamera.initializeCamera(device, immediateContext, secondCameraBuffer);
 	secondCamera.setPosition(0.0f, 90.0f, 0.0f);
 	secondCamera.setRotation(1.5f, 0.0f, 0.0f);
 	MSG msg = {};
 
-	frustumCulling.culling(testScene);
-
+	frustumCulling.culling(testScene,camera);
+	frustumCulling.frustumCheck(camera);
 	std::vector<SceneObject*> currentScene;
 
 	currentScene = frustumCulling.getScene();
@@ -383,20 +384,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			//roterande kub
 			testScene[0]->tempUpdate();
+			//testScene[0]->flyLeft(); 
 
 			for (int i = 0; i < testScene.size(); i++)
 			{
 				testScene[i]->update();
 			}
-
-			//frustumCulling.culling(testScene);
+			
+			//frustumCulling.clearTree();
+			frustumCulling.frustumCheck(camera);
 			currentScene = frustumCulling.getScene();
 
 			//lightClass.updateLightCBuffer(device, lightBuffer, immediateContext);
 			//cBuffer.updateConstantBuffer(device, constantBuffer, immediateContext);
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
-				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, testScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
+				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest, secondCamera);
 
 			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
@@ -421,6 +424,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i]->noMemoryLeak();
+	}
+	for (int i = 0; i < testScene.size(); i++)
+	{
+		delete testScene[i];
 	}
 
 	

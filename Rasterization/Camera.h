@@ -56,6 +56,8 @@ public:
 	void setPosition(float x, float y, float z, ID3D11DeviceContext* immediateContext);
 	cameraForwardUpvector particleTempCamera(ID3D11DeviceContext* immediateContext);
 
+	DirectX::BoundingFrustum getFrustum();
+
 	void setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext *immediateContext);
 	void setHullShaderCameraPos(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext);
 	void setPSCameraPosition(ID3D11DeviceContext* immediateContext);

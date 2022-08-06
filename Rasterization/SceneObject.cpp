@@ -44,10 +44,11 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 {
     textureSRV = textureSRVs;
 
+    bbWorldMatrix = DirectX::XMMatrixIdentity();
 
     DirectX::XMFLOAT3 temp1(0.0f,0.0f,0.0f);
     DirectX::XMVECTOR point1 = DirectX::XMLoadFloat3(&temp1);
-    DirectX::XMFLOAT3 temp2(10.0f,10.0f,10.0f);
+    DirectX::XMFLOAT3 temp2(5.0f,5.0f,5.0f);
     DirectX::XMVECTOR point2 = DirectX::XMLoadFloat3(&temp2);
 
     bBox.CreateFromPoints(bBox, point1, point2);
@@ -107,15 +108,21 @@ void SceneObject::setGroundPos()
 
     //world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
     world = DirectX::XMMatrixTranspose(world);
+
 }
 
 void SceneObject::setPosition(float x, float y, float z)
 {
     world = DirectX::XMMatrixIdentity();
     world *= DirectX::XMMatrixTranslation(x, y, z);
+
+    bbWorldMatrix = DirectX::XMMatrixTranslation(x,y,z);
+    bBox.Transform(bBox, bbWorldMatrix);
+
     world = DirectX::XMMatrixTranspose(world);
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
     constantBuffer.applyData();
+
 }
 
 void SceneObject::rotateObject(float x, float y, float z)
@@ -131,6 +138,7 @@ void SceneObject::rotateObject(float x, float y, float z)
 
 void SceneObject::tempUpdate()
 {
+
     world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
     world = DirectX::XMMatrixTranspose(world);
     world *= DirectX::XMMatrixTranslation(0.0f, .0f, -1.0f);
@@ -155,11 +163,23 @@ void SceneObject::update()
     constantBuffer.applyData();
 
     //så den inte är transposed
-    DirectX::XMMATRIX tempWorld = DirectX::XMMatrixTranspose(world);
-    bBox.Transform(bBox, tempWorld);
+   // DirectX::XMMATRIX tempWorld = DirectX::XMMatrixTranspose(world);
 }
 
-DirectX::BoundingBox SceneObject::getBoundingBox()
+void SceneObject::flyLeft()
+{
+    //bbWorldMatrix = DirectX::XMMatrixTranslation(0.01f, .0f, .01f);
+
+    world = DirectX::XMLoadFloat4x4(&constantBuffer.getData().world);
+    world = DirectX::XMMatrixTranspose(world);
+    world *= DirectX::XMMatrixTranslation(0.01f, .0f, .01f);
+    
+
+    //world *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+    world = DirectX::XMMatrixTranspose(world);
+}
+
+DirectX::BoundingBox &SceneObject::getBoundingBox()
 {
     return bBox;
 }

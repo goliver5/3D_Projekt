@@ -15,6 +15,7 @@ private:
 	std::vector<float>wow;
 	ConstantBufferNew<WMatrix> constantBuffer;
 	DirectX::XMMATRIX world;
+	DirectX::XMMATRIX bbWorldMatrix;
 
 	std::vector<VertexData> vertexForIndex;
 	std::vector<int> vertexSubMeshCounter;
@@ -48,8 +49,9 @@ public:
 	void noMemoryLeak();
 
 	void update();
+	void flyLeft();
 
-	DirectX::BoundingBox getBoundingBox();
+	DirectX::BoundingBox &getBoundingBox();
 
 	void draw(ID3D11DeviceContext*& immediateContext);
 	void drawCubeMap(ID3D11DeviceContext*& immediateContext);

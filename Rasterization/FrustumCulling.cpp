@@ -4,6 +4,7 @@
 FrustumCulling::FrustumCulling()
 {
 	rootNode = new Node();
+	rootNode->isRootNode = true;
 
 	//for (int i = 0; i < NROFCHILDREN; i++)
 	//{
@@ -14,9 +15,6 @@ FrustumCulling::FrustumCulling()
 	createTree(rootNode, DEPTH);
 
 	createBoundingBoxes(rootNode, DEPTH, TOPLEFT, WIDTH, HEIGHT);
-
-	
-	
 }
 
 void FrustumCulling::createBoundingBoxes(Node* node, int depth, DirectX::XMFLOAT3 topLeft, float width, float height)
@@ -30,7 +28,7 @@ void FrustumCulling::createBoundingBoxes(Node* node, int depth, DirectX::XMFLOAT
 		for (int i = 0; i < node->demkids.size(); i++)
 		{
 
-			if (i == 1)// 64,64 || 32,32
+			if (i == 0)// 64,64 || 32,32
 			{
 				DirectX::XMFLOAT3 temp1(topLeft);
 				DirectX::XMVECTOR point1 = DirectX::XMLoadFloat3(&temp1);
@@ -88,55 +86,113 @@ void FrustumCulling::createTree(Node* node, int depth)
 		{
 			node->demkids.push_back(new Node());
 			createTree(node->demkids[i], depth - 1);
-			
 		}
 	}
+	//if (depth == 0)
+	//{
+	//	for (int i = 0; i < NROFCHILDREN; i++)
+	//	{
+	//		node->demkids.push_back(nullptr);
+	//	}
+	//}
 
 }
 
-void FrustumCulling::checkIntersectionAllObjects(Node* node, std::vector<SceneObject*> allObjects)
+void FrustumCulling::checkIntersectionAllObjects(Node* node, std::vector<SceneObject*>& allObjects)
 {
-	node->objects.clear();
+	//node->objects.clear();
 	bool isLeave = false;
 	if (node->demkids.size() == 0)
 	{
 		isLeave = true;
-	}
-	for (int i = 0; i < NROFCHILDREN; i++)
-	{
-		if (!isLeave)
-		{
-			checkIntersectionAllObjects(node->demkids[i], allObjects);
-		}
 	}
 	if (isLeave)
 	{
 		//om inte lika med noll
 		for (int i = 0; i < allObjects.size(); i++)
 		{
+			//int temp = node->boundingBox.Contains(allObjects[i]->getBoundingBox());
 			int temp = node->boundingBox.Contains(allObjects[i]->getBoundingBox());
-			if (temp != 0)
+
+			if (!node->isRootNode)
+			{
+				OutputDebugString(std::to_wstring(temp).c_str());
+				OutputDebugString(L"\n");
+			}
+
+			if (node->boundingBox.Contains(allObjects[i]->getBoundingBox()))
 			{
 				bool wow = true;
 				node->objects.push_back(allObjects[i]);
+				//this->currentScene.push_back(allObjects[i]);
+			}
+		}
+	}
+	else if(!isLeave)
+	{
+		for (int i = 0; i < node->demkids.size(); i++)
+		{
+			if (!isLeave)
+			{
+				checkIntersectionAllObjects(node->demkids[i], allObjects);
 			}
 		}
 	}
 }
 
-
-void FrustumCulling::culling(std::vector<SceneObject*> allObjects)
+void FrustumCulling::checkFrustumIntersectingNodes(Node* node, int depth, DirectX::BoundingFrustum& frustum)
 {
-	this->checkIntersectionAllObjects(rootNode, allObjects);
+	if (depth > 0)
+	{
+		for (int i = 0; i < NROFCHILDREN; i++)
+		{
+			checkFrustumIntersectingNodes(node->demkids[i], depth - 1,frustum);
+		}
+	}
+	if (depth == 0)
+	{
+		if (node->boundingBox.Contains(frustum))
+		{
+			this->currentNodes.push_back(node);
+		}
+	}
 }
 
-void FrustumCulling::getCulledTree()
+void FrustumCulling::clearTreeRecursive(Node* node, int depth)
 {
+}
 
+
+void FrustumCulling::culling(std::vector<SceneObject*> allObjects, Camera& currentCamera)
+{
+	this->checkIntersectionAllObjects(rootNode, allObjects);
+
+	
+}
+
+void FrustumCulling::frustumCheck(Camera& currentCamera)
+{
+	//beräkna vilka noder som kamerans frustum intersectar med nodernas bounding boxes
+	currentScene.clear();
+	currentNodes.clear();
+	DirectX::BoundingFrustum camFrustum = currentCamera.getFrustum();
+	checkFrustumIntersectingNodes(rootNode, DEPTH, camFrustum);
+
+	for (int i = 0; i < currentNodes.size(); i++)
+	{
+		for (int j = 0; j < currentNodes[i]->objects.size(); j++)
+		{
+			currentScene.push_back(currentNodes[i]->objects[j]);
+		}
+	}
+}
+
+void FrustumCulling::clearTree()
+{
+	clearTreeRecursive(rootNode, DEPTH);
 }
 
 std::vector<SceneObject*> FrustumCulling::getScene()
 {
-
-	return rootNode->demkids[3]->demkids[0]->demkids[3]->objects;
+	return currentScene;
 }
