@@ -9,9 +9,9 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
-map_Kd cont_texture
-map_Ks cont_texture
-map_Ka cont_texture
+map_Kd Blue.png
+map_Ks Blue.png
+map_Ka Blue.png
 illum 2
 
 newmtl Green
@@ -22,9 +22,9 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
-map_Kd cont_texture-def
-map_Ks cont_texture-def
-map_Ka cont_texture-def
+map_Kd Green.png
+map_Ks Green.png
+map_Ka Green.png
 illum 2
 
 newmtl Purple
@@ -35,9 +35,9 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
-map_Kd cont_texture-spec
-map_Ks cont_texture-spec
-map_Ka cont_texture-spec
+map_Kd Purple.png
+map_Ks Purple.png
+map_Ka Purple.png
 illum 2
 
 newmtl Red
@@ -49,8 +49,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Texture\\cont_texture-def.png
-map_Ks Texture\\cont_texture-spec.png
+map_Kd Red.png
+map_Ks Red.png
+map_Ka Red.png
 
 newmtl White
 Ns 225.000000
@@ -61,6 +62,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Kd White.png
+map_Ks White.png
+map_Ka White.png
 
 newmtl Yellow
 Ns 225.000000
@@ -71,3 +75,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Kd White.png
+map_Ks White.png
+map_Ka White.png
+

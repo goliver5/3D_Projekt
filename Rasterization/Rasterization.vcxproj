@@ -145,10 +145,13 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="CreateTextures.cpp" />
+    <ClCompile Include="CreateTextures.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="CubeMapping.cpp" />
     <ClCompile Include="D3D11Helper.cpp" />
     <ClCompile Include="DefferedRendering.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="FrustumCulling.cpp" />
     <ClCompile Include="Imgui\imgui.cpp" />
     <ClCompile Include="Imgui\imgui_demo.cpp" />
@@ -177,10 +180,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ConstantBufferNew.h" />
-    <ClInclude Include="CreateTextures.h" />
+    <ClInclude Include="CreateTextures.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="CubeMapping.h" />
     <ClInclude Include="D3D11Helper.h" />
     <ClInclude Include="DefferedRendering.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="FrustumCulling.h" />
     <ClInclude Include="Imgui\imconfig.h" />
     <ClInclude Include="Imgui\imgui.h" />

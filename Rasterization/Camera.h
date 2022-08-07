@@ -58,6 +58,8 @@ public:
 
 	DirectX::BoundingFrustum getFrustum();
 
+	void csSetCameraPosition(ID3D11DeviceContext* immediateContext);
+
 	void setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext *immediateContext);
 	void setHullShaderCameraPos(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext);
 	void setPSCameraPosition(ID3D11DeviceContext* immediateContext);

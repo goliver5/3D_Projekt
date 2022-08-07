@@ -5,4 +5,4 @@
 
 
 
-bool SetupTextures(ID3D11Device* device, ID3D11ShaderResourceView* textureSRVs[]);
+bool createTextures(ID3D11Device* device, ID3D11ShaderResourceView*& textureSRV, std::string fileName);

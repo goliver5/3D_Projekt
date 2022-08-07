@@ -1,7 +1,7 @@
 #pragma once
 #include<d3d11.h>
 
-const UINT GBUFFER_COUNT = 3;
+const UINT GBUFFER_COUNT = 6;
 
 class DefferedRendering
 {

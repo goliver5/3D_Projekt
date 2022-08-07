@@ -1,59 +1,30 @@
-Texture2D testTexture : register(t0);
-Texture2DArray depthTexture : register(t1);
+Texture2D Texture_KA : register(t0);
+Texture2D Texture_KD : register(t1);
+Texture2D Texture_KS : register(t2);
+Texture2DArray depthTexture : register(t3);
 
 SamplerState testSampler : register(s0);
 SamplerState DepthSampler : register(s1);
 
 cbuffer cBuf : register(b0)
 {
-	float3 lightPos0;
-	float ambienceStrength;
-	float3 cameraPos;
-	float padd;
+	float3 dir;
+	float dirPadding;
+	float3 dirColor;
+	float dirPadding2;
 }
 
-cbuffer Spotlight1 : register(b1)
-{
-	float3 position;
-	float range;
-	float3 direction;
-	float cone;
-	float3 color;
-	float pad;
-	float3 attenuation;
-	float pad2;
-};
 
-cbuffer Spotlight2 : register(b2)
-{
-	float3 position2;
-	float range2;
-	float3 direction2;
-	float cone2;
-	float3 color2;
-	float pad222;
-	float3 attenuation2;
-	float pad22;
-};
-
-cbuffer Spotlight3 : register(b3)
-{
-	float3 position3;
-	float range3;
-	float3 direction3;
-	float cone3;
-	float3 color3;
-	float pad3;
-	float3 attenuation3;
-	float pad23;
-};
 struct PixelShaderInput
 {
 	float4 position : SV_POSITION;
-	float3 worldPos : WORLD_POS;
+	float4 worldPos : WORLD_POS;
 	float3 normal : NORMAL;
 	float2 uv : UV;
 	float4 posLight : LIGHTPOS;
+	float4 posLight2 : LIGHTPOS2;
+	float4 posLight3 : LIGHTPOS3;
+	float4 posLight4 : LIGHTPOS4;
 };
 
 struct PixelShaderOutput
@@ -61,6 +32,9 @@ struct PixelShaderOutput
 	float4 Texture : SV_Target0;
 	float4 Normal : SV_Target1;
 	float4 Position : SV_Target2;
+	float4 DiffuseMap : SV_Target3;
+	float4 AmbientMap : SV_Target4;
+	float4 SpecularMap : SV_Target5;
 };
 
 PixelShaderOutput main(PixelShaderInput input)
@@ -68,45 +42,50 @@ PixelShaderOutput main(PixelShaderInput input)
 	PixelShaderOutput output;
 	
 	
+	float3 norm = normalize(input.normal);
 	
 	input.posLight.xy /= input.posLight.w;
+	input.posLight2.xy /= input.posLight2.w;
+	input.posLight3.xy /= input.posLight3.w;
+	input.posLight4.xy /= input.posLight4.w;
 
-	float2 smTexcoord = float2(0.5f * input.posLight.x + 0.5f, -0.5f * input.posLight.y + 0.5f);
+	float3 smTexcoord = float3(0.5f * input.posLight.x + 0.5f, -0.5f * input.posLight.y + 0.5f,0.0f);
+	float3 smTexcoord2 = float3(0.5f * input.posLight2.x + 0.5f, -0.5f * input.posLight2.y + 0.5f,1.0f);
+	float3 smTexcoord3 = float3(0.5f * input.posLight3.x + 0.5f, -0.5f * input.posLight3.y + 0.5f,2.0f);
+	float3 smTexcoord4 = float3(0.5f * input.posLight4.x + 0.5f, -0.5f * input.posLight4.y + 0.5f,3.0f);
 	float depth = input.posLight.z / input.posLight.w;
+	float depth2 = input.posLight2.z / input.posLight2.w;
+	float depth3 = input.posLight3.z / input.posLight3.w;
+	float depth4 = input.posLight4.z / input.posLight4.w;
 	float SHADOW_EPSILON = 0.000125f;
-	float dx = 1.f / 1024.0f;
-	float dy = 1.0f / 576.0f;
 	
 	
-	float d0 = (depthTexture.Sample(DepthSampler, float3(smTexcoord, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	float d0 = (depthTexture.Sample(DepthSampler, smTexcoord).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	float d1 = (depthTexture.Sample(DepthSampler, smTexcoord2).r + SHADOW_EPSILON < depth2) ? 0.0f : 1.0f;
+	float d2 = (depthTexture.Sample(DepthSampler, smTexcoord3).r + SHADOW_EPSILON < depth3) ? 0.0f : 1.0f;
+	float d3 = (depthTexture.Sample(DepthSampler, smTexcoord4).r + SHADOW_EPSILON < depth4) ? 0.0f : 1.0f;
 	
+	float finalSpotLight = d0 * d1 * d2;
 	//float d0 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	//float d1 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	//float d2 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	//float d3 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
 	
-	//float shadowco = (d0 + d1 + d2 + d3) / 4;
-	//if (shadowco <= 0.3f)
-		//shadowco = 0.3f;
+	if (d1 <= 0.3)
+		d1 = 0.3f;
 	
-	//float2 texelPos = smTexcoord * 1024.0f;
-	//float2 leps = frac(texelPos);
-	//float shadowco = lerp(lerp(d0, d1, leps.x), lerp(d2, d3, leps.x), leps.y);
-	if (d0 <= 0.3)
-		d0 = 0.3f;
+	float3 texColor = Texture_KA.Sample(testSampler, input.uv);
+	
+	//float4 color = float4((texColor * finalSpotLight), 1.0f);
 	
 	
 	
-	float3 texColor = testTexture.Sample(testSampler, input.uv);
 	
-	float4 color = float4((texColor * d0), 1.0f);
-	//float4 color = float4((texColor), shadowco);
+	float4 color = float4((texColor), d0);
 
 	output.Texture = color;
-	//output.Texture = testTexture.Sample(testSampler, input.uv);
-
-	output.Position = input.position;
-	output.Normal = float4(input.normal, 1.0f);
+	output.Position = float4(input.worldPos.xyz, d0);
+	output.Normal = float4(input.normal, d1);
+	output.AmbientMap = float4(Texture_KA.Sample(testSampler, input.uv).xyz, d2);
+	output.DiffuseMap = float4(Texture_KD.Sample(testSampler, input.uv).xyz, d3);
+	output.SpecularMap = Texture_KS.Sample(testSampler, input.uv);
 
 	return output;
 }

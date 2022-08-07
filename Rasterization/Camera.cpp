@@ -285,6 +285,12 @@ DirectX::BoundingFrustum Camera::getFrustum()
 	return temp;
 }
 
+void Camera::csSetCameraPosition(ID3D11DeviceContext* immediateContext)
+{
+	cameraPositionBuffer.applyData();
+	immediateContext->CSSetConstantBuffers(3, 1, cameraPositionBuffer.getReferenceOf());
+}
+
 void Camera::setviewProjectionLightVertexShader(int startSlot, int numBuffers, ID3D11DeviceContext* immediateContext)
 {
 	VPcBuffer->applyData();

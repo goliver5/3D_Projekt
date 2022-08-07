@@ -3,13 +3,21 @@ bool ShadowMapping::initiateDepthStencils(ID3D11Device* device)
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 	depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 	depthStencilViewDesc.Flags = 0;
+	depthStencilViewDesc.Texture2DArray.ArraySize = 1;
 
-	HRESULT hr = device->CreateDepthStencilView(this->texture, &depthStencilViewDesc, &depthStencilView);
+	HRESULT hr;
+	
+	for (int i = 0; i < 4; i++)
+	{
+		depthStencilViewDesc.Texture2DArray.FirstArraySlice = i;
+		hr = device->CreateDepthStencilView(this->texture, &depthStencilViewDesc, &depthStencilView[i]);
+		if (FAILED(hr)) return false;
+	}
 
-	if (FAILED(hr)) return false;
+	//if (FAILED(hr)) return false;
 
 	return true;
 }
@@ -102,7 +110,7 @@ bool ShadowMapping::initiateShadowSampler(ID3D11Device* device)
 ShadowMapping::ShadowMapping(UINT width, UINT height)
 	:width(width),height(height)
 {
-	this->depthStencilView = nullptr;
+	this->depthStencilView[0] = nullptr;
 	this->shadowSrv = nullptr;
 	this->vertexShadowShader = nullptr;
 	this->shadowSampler = nullptr;
@@ -111,7 +119,7 @@ ShadowMapping::ShadowMapping(UINT width, UINT height)
 
 ShadowMapping::~ShadowMapping()
 {
-	depthStencilView->Release();
+	depthStencilView[0]->Release();
 	vertexShadowShader->Release();
 	shadowSrv->Release();
 	shadowSampler->Release();
@@ -127,67 +135,90 @@ bool ShadowMapping::initiateShadows(ID3D11Device* device, ID3D11DeviceContext* i
 	if (!initiateDepthStencils(device))						return false;
 	if (!initiateShadowSampler(device))						return false;
 
-	camera.initializeCamera(device, immediateContext, VPBuf);
+	camera[0].initializeCamera(device, immediateContext, VPBuf);
+	camera[1].initializeCamera(device, immediateContext, VPBuf2);
+	camera[2].initializeCamera(device, immediateContext, VPBuf3);
+	camera[3].initializeCamera(device, immediateContext, VPBuf4);
 
-	camera.setPosition(0.0f, 5.0f, -3.0f);
-	camera.setRotation(0.5f, 0.f, 0.f);
+	//camera.setPosition(0.0f, 5.0f, -3.0f);
+	//camera.setRotation(0.5f, 0.f, 0.f);
 
 	return true;
 }
 
-void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*>& sceneObjects)
+void ShadowMapping::shadowFirstPass(ID3D11DeviceContext* immediateContext, std::vector<SceneObject*>& sceneObjects, std::vector<SpotLight>& spotlights)
 {
-	immediateContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	immediateContext->VSSetShader(vertexShadowShader, nullptr, 0);
-
-	ID3D11PixelShader* nullPShader = nullptr;
-	immediateContext->PSSetShader(nullPShader, nullptr, 0u);
-
-	immediateContext->OMSetRenderTargets(0, nullptr, depthStencilView);
-	//immediateContext->OMSetDepthStencilState(depthStencilState, 0);
-	immediateContext->PSSetSamplers(1, 1, &shadowSampler);
-	//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
-	//camera.setVSBuffer(immediateContext);
-
-	//camera.ShadowUpdateDebug(immediateContext);
-
-	camera.setPosition(0.0f, 5.0f, -3.0f);
-	camera.setRotation(0.5f, 0.f, 0.f);
-
-	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);
-
-	for (int i = 0; i < sceneObjects.size(); i++)
+	for (int i = 0; i < 4; i++)
 	{
-		sceneObjects[i]->draw(immediateContext);
+		immediateContext->ClearDepthStencilView(depthStencilView[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		immediateContext->VSSetShader(vertexShadowShader, nullptr, 0);
+
+		ID3D11PixelShader* nullPShader = nullptr;
+		immediateContext->PSSetShader(nullPShader, nullptr, 0u);
+
+		immediateContext->OMSetRenderTargets(0, nullptr, depthStencilView[i]);
+		//immediateContext->OMSetDepthStencilState(depthStencilState, 0);
+		immediateContext->PSSetSamplers(1, 1, &shadowSampler);
+		//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
+		//camera.setVSBuffer(immediateContext);
+
+		//camera.ShadowUpdateDebug(immediateContext);
+
+		if (i == 3)
+		{
+			camera[3].setPosition(0.0f,30.f,50.f);
+			camera[3].setRotation(DirectX::XM_PI / 4, DirectX::XM_PI, 0.f);
+
+			camera[3].setviewProjectionLightVertexShader(2, 1, immediateContext);
+		}
+		else
+		{
+			camera[i].setPosition(spotlights[i].getPosition().x, spotlights[i].getPosition().y, spotlights[i].getPosition().z);
+			camera[i].setRotation(DirectX::XM_PI / 2, 0.f, 0.f);
+
+			camera[i].setviewProjectionLightVertexShader(2, 1, immediateContext);
+		}
+		
+
+		for (int i = 0; i < sceneObjects.size(); i++)
+		{
+			sceneObjects[i]->draw(immediateContext);
+		}
+
+		//används för test sätter camera bufferns viewprojection till shadows camera
+		//camera.setVSBuffer(immediateContext);
+
+		//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
+
+		ID3D11DepthStencilState* nullDState = nullptr;
+		//immediateContext->OMSetDepthStencilState(nullDState, 0);
 	}
-
-	//används för test sätter camera bufferns viewprojection till shadows camera
-	//camera.setVSBuffer(immediateContext);
-
-	//immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
-
-	ID3D11DepthStencilState* nullDState = nullptr;
-	//immediateContext->OMSetDepthStencilState(nullDState, 0);
+	
 }
 
 void ShadowMapping::setSRV(ID3D11DeviceContext* immediateContext)
 {
-	immediateContext->PSSetShaderResources(1, 1, &shadowSrv);
+	immediateContext->PSSetShaderResources(3, 1, &shadowSrv);
 }
 
 void ShadowMapping::setSRVNull(ID3D11DeviceContext* immediateContext)
 {
 	ID3D11ShaderResourceView* nullSRV = nullptr;
-	immediateContext->PSSetShaderResources(1, 1, &nullSRV);
+	immediateContext->PSSetShaderResources(3, 1, &nullSRV);
 }
 
 void ShadowMapping::setCameraBuffer(ID3D11DeviceContext* immediateContext)
 {
-	camera.setviewProjectionLightVertexShader(2, 1, immediateContext);
+	for (int i = 0; i < 4; i++)
+	{
+		camera[i].setviewProjectionLightVertexShader(2+i, 1, immediateContext);
+	}
+	immediateContext->PSSetShaderResources(3, 1, &shadowSrv);
+	immediateContext->PSSetSamplers(1, 1, &shadowSampler);
 }
 
 void ShadowMapping::setShadowToCurrentCamera(ID3D11DeviceContext* immediateContext)
 {
-	camera.setviewProjectionLightVertexShader(1, 1, immediateContext);
+	//camera.setviewProjectionLightVertexShader(1, 1, immediateContext);
 }
 

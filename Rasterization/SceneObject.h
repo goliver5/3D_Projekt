@@ -21,10 +21,13 @@ private:
 	std::vector<int> vertexSubMeshCounter;
 	std::vector<int> indices;
 
+	std::vector<ID3D11ShaderResourceView*> kdSrv;
+	std::vector<ID3D11ShaderResourceView*> kaSrv;
+	std::vector<ID3D11ShaderResourceView*> ksSrv;
+
 
 	DirectX::BoundingBox bBox;
 
-	ID3D11ShaderResourceView* textureSRV;
 	/*VertexData triangle[6] =
 	{
 		{ {-0.5f, 0.5f, 0.0f}, {0, 0, -1}, {0, 0} },
@@ -39,7 +42,7 @@ protected:
 	HRESULT createVertexBuffer(ID3D11Device* device);
 	bool createIndexBuffer(ID3D11Device* device);
 public:
-	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, objectStruct objectData);
+	SceneObject(ID3D11Device* device, ID3D11DeviceContext* immediateContext, objectStruct objectData);
 
 
 	void setGroundPos();

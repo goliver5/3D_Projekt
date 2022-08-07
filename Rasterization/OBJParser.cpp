@@ -1,12 +1,80 @@
 #include "OBJParser.h"
-#include<fstream>
+#include <fstream>
 #include <sstream>
-#include<iostream>
+#include <iostream>
 #include <chrono>
-#include<DirectXCollision.h>
+#include <d3d11.h>
+#include <DirectXCollision.h>
+#include"CreateTextures.h"
+
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
+
+bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResourceView*& temp_ka, ID3D11ShaderResourceView*& temp_kd, ID3D11ShaderResourceView*& temp_ks,
+	std::string mtlName)
+{
+	std::ifstream file;
+	std::string myString;
+	std::string currentLine;
+	file.open(mtlFileName);
+
+	float NS = 0;
+
+
+	if (file.is_open())
+	{
+		while (!(file.eof()))
+		{
+			std::getline(file, currentLine);
+
+			std::stringstream currentStringStream(currentLine);
+			std::getline(currentStringStream, myString, ' ');
+			if (myString == "newmtl")// reads mtl
+			{
+				while (!(file.eof()))
+				{
+
+					std::getline(file, currentLine);
+
+					std::stringstream mtlStringStream(currentLine);
+					std::getline(mtlStringStream, myString, ' ');
+
+					if (myString == "map_Ka")
+					{
+						std::getline(mtlStringStream, myString, ' ');
+						createTextures(device, temp_ka, "models/" + myString);
+					}
+					if (myString == "map_Kd")
+					{
+						std::getline(mtlStringStream, myString, ' ');
+						createTextures(device, temp_kd, "models/" + myString);
+					}
+					if (myString == "map_Ks")
+					{
+						std::getline(mtlStringStream, myString, ' ');
+						createTextures(device, temp_ks, "models/" + myString);
+					}
+					if (myString == "Ns")
+					{
+						std::getline(mtlStringStream, myString, ' ');
+						NS = stof(myString);
+					}
+					if (myString == "")
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
 
 bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
-	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName)
+	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName, ID3D11Device* device, std::vector<ID3D11ShaderResourceView*>& srvs_ka,
+	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks)
 {
 	//plats i vertexForIndex där verticer är likadana
 	//std::vector<int> indices;
@@ -30,7 +98,7 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 	std::ifstream file;
 	std::string myString;
 	std::string currentLine;
-	file.open("models/" + fileName);
+	file.open("models/" + fileName + ".obj");
 
 	if (file.is_open())
 	{
@@ -75,8 +143,21 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 			}
 			else if (myString == "usemtl")
 			{
+				std::getline(currentStringStream, myString, ' ');
+
+				ID3D11ShaderResourceView* temp_ka;
+				ID3D11ShaderResourceView* temp_kd;
+				ID3D11ShaderResourceView* temp_ks;
+
+				readMTL(device,"models/" + fileName + ".mtl", temp_ka, temp_kd, temp_ks, myString);
+
+				srvs_ka.push_back(temp_ka);
+				srvs_kd.push_back(temp_kd);
+				srvs_ks.push_back(temp_ks);
+
 				std::getline(currentStringStream, myString);
 				currentMTL = myString;
+
 
 				vertexSubMeshCounter.push_back(0);
 			}

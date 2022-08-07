@@ -17,6 +17,9 @@ struct VertexShaderOutput
 	float3 normal : NORMAL;
 	float2 uv : UV;
 	float4 posLight : LIGHTPOS;
+	float4 posLight2 : LIGHTPOS2;
+	float4 posLight3 : LIGHTPOS3;
+	float4 posLight4 : LIGHTPOS4;
 };
 
 HS_CONSTANT_DATA_OUTPUT ConstantPatchFunction(InputPatch<VertexShaderOutput, 3> inputPatch, uint patchID : SV_PrimitiveID)

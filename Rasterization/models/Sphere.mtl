@@ -1,0 +1,5 @@
+newmtl Default
+Ns 100.0000
+map_Ka wood.png
+map_Kd wood.png
+map_Ks White.png

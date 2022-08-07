@@ -194,6 +194,19 @@ void FrustumCulling::frustumCheck(Camera& currentCamera)
 	{
 		for (int j = 0; j < currentNodes[i]->objects.size(); j++)
 		{
+			//for (int z = 0; z < currentNodes[i]->objects.size(); z++)
+			//{
+			//	bool isThere = false;
+			//	if (currentNodes[i]->objects[j] == currentNodes[i]->objects[i])
+			//	{
+			//		//kolla om objektet inte finns isåfall lägg till
+			//		isThere = true;
+			//	}
+			//	if(!isThere)
+			//	{
+			//		currentScene.push_back(currentNodes[i]->objects[j]);
+			//	}
+			//}
 			currentScene.push_back(currentNodes[i]->objects[j]);
 		}
 	}

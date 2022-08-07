@@ -257,7 +257,7 @@ void CubeMapping::drawCube(ID3D11DeviceContext* immediateContext)
     
     immediateContext->PSSetSamplers(0, 1, &cubeSampler);
     //immediateContext->PSSetShaderResources(0, 1, &cubeSrv);
-    cubeObject->draw(immediateContext);
+    cubeObject->drawCubeMap(immediateContext);
     
     //ID3D11RenderTargetView* nullrv = nullptr;
     //immediateContext->OMSetRenderTargets(1, &nullrv, nullptr);

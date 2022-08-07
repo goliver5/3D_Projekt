@@ -60,7 +60,10 @@ struct cameraPosition
 
 struct dirLight
 {
-
+	DirectX::XMFLOAT3 direction;
+	float padd;
+	DirectX::XMFLOAT3 color;
+	float padd2;
 };
 
 struct spotLightData

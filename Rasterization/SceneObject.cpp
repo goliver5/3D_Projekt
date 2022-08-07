@@ -40,9 +40,9 @@ bool SceneObject::createIndexBuffer(ID3D11Device* device)
     return true;
 }
 
-SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, ID3D11ShaderResourceView*& textureSRVs, objectStruct objectData)
+SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateContext, objectStruct objectData)
 {
-    textureSRV = textureSRVs;
+    //textureSRV = textureSRVs;
 
     bbWorldMatrix = DirectX::XMMatrixIdentity();
 
@@ -60,6 +60,10 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
     this->vertexSubMeshCounter = objectData.vertexSubMeshCounter;
     vertexForIndex = objectData.vertexForIndex;
     indices = objectData.indices;
+
+    this->kaSrv = objectData.srvs_ka;
+    this->kdSrv = objectData.srvs_kd;
+    this->ksSrv = objectData.srvs_ks;
 
 	/*std::vector<float> vertices;
 	std::vector<float> normals;
@@ -155,6 +159,19 @@ void SceneObject::noMemoryLeak()
     //textureSRV->Release();
     vertexBuffer->Release();
     indexBuffer->Release();
+
+  /*  for (int i = 0; i < kdSrv.size(); i++)
+    {
+        kdSrv[i]->Release();
+    }
+    for (int i = 0; i < kaSrv.size(); i++)
+    {
+        kaSrv[i]->Release();
+    }
+    for (int i = 0; i < ksSrv.size(); i++)
+    {
+        ksSrv[i]->Release();
+    }*/
 }
 
 void SceneObject::update()
@@ -189,7 +206,6 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
     constantBuffer.applyData();
     immediateContext->VSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
-    immediateContext->PSSetShaderResources(0, 1, &textureSRV);
 
     UINT stride = sizeof(VertexData);
     UINT offset = 0;
@@ -202,6 +218,9 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
 
     for (int i = 0; i < vertexSubMeshCounter.size(); i++)
     {
+        immediateContext->PSSetShaderResources(0, 1, &kaSrv[i]);
+        immediateContext->PSSetShaderResources(1, 1, &kdSrv[i]);
+        immediateContext->PSSetShaderResources(2, 1, &ksSrv[i]);
         //skicka in submeshes i pixelshadern
         immediateContext->DrawIndexed(vertexSubMeshCounter[i], counter, 0);
         counter += vertexSubMeshCounter[i];
@@ -214,7 +233,6 @@ void SceneObject::drawCubeMap(ID3D11DeviceContext*& immediateContext)
     XMStoreFloat4x4(&constantBuffer.getData().world, world);
     constantBuffer.applyData();
     immediateContext->VSSetConstantBuffers(0, 1, constantBuffer.getReferenceOf());
-    immediateContext->PSSetShaderResources(0, 1, &textureSRV);
 
     UINT stride = sizeof(VertexData);
     UINT offset = 0;
@@ -222,8 +240,16 @@ void SceneObject::drawCubeMap(ID3D11DeviceContext*& immediateContext)
 
     //immediateContext->Draw(size, 0);
     int counter = 0;
-   // immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+    immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
     immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
-    immediateContext->Draw(size, 0);
+    for (int i = 0; i < vertexSubMeshCounter.size(); i++)
+    {
+        immediateContext->PSSetShaderResources(0, 1, &kaSrv[i]);
+        //immediateContext->PSSetShaderResources(1, 1, &kdSrv[i]);
+        //immediateContext->PSSetShaderResources(2, 1, &ksSrv[i]);
+        //skicka in submeshes i pixelshadern
+        immediateContext->DrawIndexed(vertexSubMeshCounter[i], counter, 0);
+        counter += vertexSubMeshCounter[i];
+    }
 }
