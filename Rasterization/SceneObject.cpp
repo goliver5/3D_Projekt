@@ -46,12 +46,12 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
 
     bbWorldMatrix = DirectX::XMMatrixIdentity();
 
-    DirectX::XMFLOAT3 temp1(0.0f,0.0f,0.0f);
+    DirectX::XMFLOAT3 temp1(objectData.bottomLeft);
     DirectX::XMVECTOR point1 = DirectX::XMLoadFloat3(&temp1);
-    DirectX::XMFLOAT3 temp2(5.0f,5.0f,5.0f);
+    DirectX::XMFLOAT3 temp2(objectData.topLeft);
     DirectX::XMVECTOR point2 = DirectX::XMLoadFloat3(&temp2);
 
-    bBox.CreateFromPoints(bBox, point1, point2);
+    bBox.CreateFromPoints(bBox,point1 , point2);
 
     constantBuffer.Initialize(device, immediateContext);
     world = DirectX::XMMatrixIdentity();
@@ -160,18 +160,18 @@ void SceneObject::noMemoryLeak()
     vertexBuffer->Release();
     indexBuffer->Release();
 
-  /*  for (int i = 0; i < kdSrv.size(); i++)
-    {
-        kdSrv[i]->Release();
-    }
-    for (int i = 0; i < kaSrv.size(); i++)
-    {
-        kaSrv[i]->Release();
-    }
-    for (int i = 0; i < ksSrv.size(); i++)
-    {
-        ksSrv[i]->Release();
-    }*/
+    //for (int i = 0; i < kdSrv.size(); i++)
+    //{
+    //    if (kdSrv[i] != nullptr) kdSrv[i]->Release();
+    //}
+    //for (int i = 0; i < kaSrv.size(); i++)
+    //{
+    //    if (kaSrv[i] != nullptr) kdSrv[i]->Release();
+    //}
+    //for (int i = 0; i < ksSrv.size(); i++)
+    //{
+    //    if (ksSrv[i] != nullptr) kdSrv[i]->Release();
+    //}
 }
 
 void SceneObject::update()

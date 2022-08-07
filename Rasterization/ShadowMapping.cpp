@@ -119,7 +119,10 @@ ShadowMapping::ShadowMapping(UINT width, UINT height)
 
 ShadowMapping::~ShadowMapping()
 {
-	depthStencilView[0]->Release();
+	for (int i = 0; i < 4; i++)
+	{
+		depthStencilView[i]->Release();
+	}
 	vertexShadowShader->Release();
 	shadowSrv->Release();
 	shadowSampler->Release();

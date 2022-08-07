@@ -102,7 +102,7 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	defferedRenderer->firstPass(immediateContext, dsView);
 
 	shadows.setSRV(immediateContext);
-	//tesselator.setTesselatorState(immediateContext);
+	tesselator.setTesselatorState(immediateContext);
 	camera.setHullShaderCameraPos(0, 1, immediateContext);
 	//int start = 0;
 	//for (int i = 0; i < spotlights.size(); i++)
@@ -110,7 +110,6 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	//	spotlights[i].setbuffer(i, 1, immediateContext);
 	//	start++;
 	//}
-	immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	shadows.setCameraBuffer(immediateContext);
 	for (int i = 0; i < testScene.size(); i++)
 	{
@@ -483,6 +482,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	geometryShader->Release();
 	particleComputeShader->Release();
 
+	for (int i = 0; i < allObjectData.size(); i++)
+	{
+		allObjectData[i].noMemoryLeak();
+	}
 
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();

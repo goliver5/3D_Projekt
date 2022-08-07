@@ -74,7 +74,7 @@ bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResource
 
 bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
 	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName, ID3D11Device* device, std::vector<ID3D11ShaderResourceView*>& srvs_ka,
-	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks)
+	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks, DirectX::XMFLOAT3& topLeft, DirectX::XMFLOAT3& bottomLeft)
 {
 	//plats i vertexForIndex där verticer är likadana
 	//std::vector<int> indices;
@@ -110,12 +110,31 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 			std::getline(currentStringStream, myString, ' ');
 			if (myString == "v")// reads vertices
 			{
+				DirectX::XMFLOAT3 saved;
+
 				std::getline(currentStringStream, myString, ' ');
+				saved.x = stof(myString);
 				vertices.push_back(stof(myString));
 				std::getline(currentStringStream, myString, ' ');
+				saved.y = stof(myString);
 				vertices.push_back(stof(myString));
 				std::getline(currentStringStream, myString, ' ');
+				saved.z = stof(myString);
 				vertices.push_back(stof(myString));
+				
+				
+
+				if (vertices.size() == 3 )//starta saken
+				{
+					topLeft = saved;
+					bottomLeft = saved;
+				}
+				else
+				{
+					if (topLeft.x >= saved.x && topLeft.y >= saved.y && topLeft.z >= saved.z) topLeft = saved;
+					else if (bottomLeft.x <= saved.x && bottomLeft.x <= saved.y && bottomLeft.z <= saved.z) bottomLeft = saved;
+				}
+
 			}
 			else if (myString == "vt") //reads the UVs
 			{
