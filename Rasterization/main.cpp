@@ -42,7 +42,8 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	ConstantBufferNew<VPMatrix> &VPcBuffer, Camera &camera, std::vector<SceneObject*>& testScene,
 	DefferedRendering*& defferedRenderer, ParticleSystem & particleSystem, ID3D11ComputeShader*& particleComputeShader,
 	ID3D11PixelShader*& pixelParticleShader, ID3D11GeometryShader*& geometryShader, ShadowMapping &shadows,
-	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode, SpotLight& spotlight, Camera& secondCamera)
+	Tesselator& tesselator, CubeMapping& cubeMapping, bool renderParticles, bool changeCamera, bool WireFrameMode, Camera& secondCamera,
+	std::vector<SpotLight>& spotlights)
 {
 	float clearColour[4]{ 0.0f, 0.0f, 0.0f, 0.0f };
 	immediateContext->ClearRenderTargetView(rtv, clearColour);
@@ -105,6 +106,12 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 	shadows.setSRV(immediateContext);
 	tesselator.setTesselatorState(immediateContext);
 	camera.setHullShaderCameraPos(0, 1, immediateContext);
+	int start = 1;
+	for (int i = 0; i < spotlights.size(); i++)
+	{
+		spotlights[i].setbuffer(start, 1, immediateContext);
+		start++;
+	}
 	for (int i = 0; i < testScene.size(); i++)
 	{
 		testScene[i]->draw(immediateContext);
@@ -256,8 +263,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Camera camera;
 	Camera secondCamera;
 
-	SpotLight lightTest;
-
+	std::vector<SpotLight> spotlights;
+	const UINT NROFSPOTLIGHTS = 3;
 
 
 	static const int NROFTEXTURES = 4;
@@ -343,7 +350,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	if (!shadowMapping.initiateShadows(device, immediateContext)) return -1;
 	if (!tesselator.initiateTesselator(device, immediateContext)) return -1;
 	if (!cubeMapping.initialize(device, immediateContext))return -1;
-	if (!lightTest.initialize(device, immediateContext)) return -1;
+
+	for (int i = 0; i < NROFSPOTLIGHTS; i++)
+	{
+		spotlights.push_back(SpotLight());
+		if (!spotlights[i].initialize(device, immediateContext)) return -1;
+	}
 
 	constantBufferNew.Initialize(device, immediateContext);
 	camera.initializeCamera(device, immediateContext, VPcBuffer);
@@ -357,7 +369,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	frustumCulling.frustumCheck(camera);
 	std::vector<SceneObject*> currentScene;
 
-	currentScene = frustumCulling.getScene();
+	//currentScene = frustumCulling.getScene();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -400,7 +412,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			Render(immediateContext, rtv, dsView, viewport, vShader, pShader, inputLayout, vertexBuffer, sampler,
 				lightBuffer, cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
-				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, lightTest, secondCamera);
+				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, secondCamera, spotlights);
 
 			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
 			

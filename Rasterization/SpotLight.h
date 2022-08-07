@@ -5,7 +5,7 @@
 class SpotLight
 {
 private:
-	ConstantBufferNew<spotLight> buffer;
+	ConstantBufferNew<spotLightData> buffer;
 public:
 	SpotLight();
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);

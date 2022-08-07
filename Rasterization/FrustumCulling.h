@@ -35,6 +35,9 @@ private:
 	std::vector<Node*> currentNodes;
 	std::vector<SceneObject*> currentScene;
 
+	//for deletion
+	std::vector<Node*> allNodes;
+
 	void createBoundingBoxes(Node* node, int depth, DirectX::XMFLOAT3 topLeft, float width, float height);
 	void createTree(Node* node, int depth);
 	void checkIntersectionAllObjects(Node* rootNode, std::vector<SceneObject*>& allObjects);
@@ -43,6 +46,7 @@ private:
 	//std::vector<Node*> getIntersectingNodes(Node* rootnode);
 public:
 	FrustumCulling();
+	~FrustumCulling();
 
 	void culling(std::vector<SceneObject*> allObjects, Camera& currentCamera);
 	void frustumCheck(Camera& currentCamera);

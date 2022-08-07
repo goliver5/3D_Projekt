@@ -19,13 +19,15 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	//particlePositions[DTid.x * 3 + 2] = cos(time + DTid.x);
 	
 	//partiklarna går upp och ner
-	particlePositions[DTid.x * 3 + 1] = sin(time + DTid.x);
+	particlePositions[DTid.x * 3 + 1] = sin(time + DTid.x) * 5;
+	
+	//particlePositions[DTid.x * 3 + 1] = (1000 % int((particlePositions[DTid.x * 3 + 1] + time) * 100)) * 0.01f - 0.01f;
 	
 	//particlePositions[DTid.x * 3 + 1] = sqrt(particlePositions[DTid.x * 3 + 1] - time);
 	
-	//if (particlePositions[DTid.x * 3 + 1] < 0.f)
+	//if (int(particlePositions[DTid.x * 3 + 1]) % 10.f)
 	//{
-	//	particlePositions[DTid.x * 3 + 1] = 1.f;
+	//	particlePositions[DTid.x * 3 + 1] = 5.f;
 	//}
 	
 }

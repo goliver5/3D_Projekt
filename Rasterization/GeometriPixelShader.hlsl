@@ -1,5 +1,5 @@
 Texture2D testTexture : register(t0);
-Texture2D depthTexture : register(t1);
+Texture2DArray depthTexture : register(t1);
 
 SamplerState testSampler : register(s0);
 SamplerState DepthSampler : register(s1);
@@ -24,6 +24,29 @@ cbuffer Spotlight1 : register(b1)
 	float pad2;
 };
 
+cbuffer Spotlight2 : register(b2)
+{
+	float3 position2;
+	float range2;
+	float3 direction2;
+	float cone2;
+	float3 color2;
+	float pad222;
+	float3 attenuation2;
+	float pad22;
+};
+
+cbuffer Spotlight3 : register(b3)
+{
+	float3 position3;
+	float range3;
+	float3 direction3;
+	float cone3;
+	float3 color3;
+	float pad3;
+	float3 attenuation3;
+	float pad23;
+};
 struct PixelShaderInput
 {
 	float4 position : SV_POSITION;
@@ -55,26 +78,28 @@ PixelShaderOutput main(PixelShaderInput input)
 	float dy = 1.0f / 576.0f;
 	
 	
-	float d0 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	float d1 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	float d2 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
-	float d3 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	float d0 = (depthTexture.Sample(DepthSampler, float3(smTexcoord, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
 	
-	float shadowco = (d0 + d1 + d2 + d3) / 4;
-	if (shadowco <= 0.3f)
-		shadowco = 0.3f;
+	//float d0 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	//float d1 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	//float d2 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	//float d3 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(dx, dy)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
+	
+	//float shadowco = (d0 + d1 + d2 + d3) / 4;
+	//if (shadowco <= 0.3f)
+		//shadowco = 0.3f;
 	
 	//float2 texelPos = smTexcoord * 1024.0f;
 	//float2 leps = frac(texelPos);
 	//float shadowco = lerp(lerp(d0, d1, leps.x), lerp(d2, d3, leps.x), leps.y);
-	//if (shadowco <= 0.3)
-	//	shadowco = 0.3f;
+	if (d0 <= 0.3)
+		d0 = 0.3f;
 	
 	
 	
 	float3 texColor = testTexture.Sample(testSampler, input.uv);
 	
-	float4 color = float4((texColor * shadowco), 1.0f);
+	float4 color = float4((texColor * d0), 1.0f);
 	//float4 color = float4((texColor), shadowco);
 
 	output.Texture = color;

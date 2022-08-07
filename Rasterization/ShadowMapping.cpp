@@ -51,7 +51,7 @@ bool ShadowMapping::initiateSrv(ID3D11Device* device)
 	textureDesc.Width = width;
 	textureDesc.Height = height;
 	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
+	textureDesc.ArraySize = 4;
 	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS;// ???????? kanske ändras
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
@@ -64,10 +64,12 @@ bool ShadowMapping::initiateSrv(ID3D11Device* device)
 	if (FAILED(hr)) return false;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderDesc{};
-	shaderDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 	shaderDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	shaderDesc.Texture2D.MostDetailedMip = 0;
 	shaderDesc.Texture2D.MipLevels = 1;
+	shaderDesc.Texture2DArray.ArraySize = 4;
+	shaderDesc.Texture2DArray.FirstArraySlice = 0;
 	hr = device->CreateShaderResourceView(this->texture, &shaderDesc, &shadowSrv);
 
 	if (FAILED(hr)) return false;

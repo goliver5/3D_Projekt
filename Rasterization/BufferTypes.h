@@ -63,7 +63,7 @@ struct dirLight
 
 };
 
-struct spotLight
+struct spotLightData
 {
 	DirectX::XMFLOAT3 position;
 	float range;

@@ -11,10 +11,18 @@ FrustumCulling::FrustumCulling()
 	//	//rootNode->demkids.push_back(new Node());
 	//	createTree(rootNode, DEPTH);
 	//}
-
 	createTree(rootNode, DEPTH);
 
 	createBoundingBoxes(rootNode, DEPTH, TOPLEFT, WIDTH, HEIGHT);
+}
+
+FrustumCulling::~FrustumCulling()
+{
+	for (int i = 0; i < allNodes.size(); i++)
+	{
+		delete allNodes[i];
+	}
+	delete rootNode;
 }
 
 void FrustumCulling::createBoundingBoxes(Node* node, int depth, DirectX::XMFLOAT3 topLeft, float width, float height)
@@ -84,7 +92,11 @@ void FrustumCulling::createTree(Node* node, int depth)
 	{
 		for (int i = 0; i < NROFCHILDREN; i++)
 		{
-			node->demkids.push_back(new Node());
+
+			Node* tempNode = new Node();
+			node->demkids.push_back(tempNode);
+			this->allNodes.push_back(tempNode);
+
 			createTree(node->demkids[i], depth - 1);
 		}
 	}
@@ -116,8 +128,8 @@ void FrustumCulling::checkIntersectionAllObjects(Node* node, std::vector<SceneOb
 
 			if (!node->isRootNode)
 			{
-				OutputDebugString(std::to_wstring(temp).c_str());
-				OutputDebugString(L"\n");
+				/*OutputDebugString(std::to_wstring(temp).c_str());
+				OutputDebugString(L"\n");*/
 			}
 
 			if (node->boundingBox.Contains(allObjects[i]->getBoundingBox()))
