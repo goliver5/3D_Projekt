@@ -174,6 +174,18 @@ void FrustumCulling::clearTreeRecursive(Node* node, int depth)
 {
 }
 
+bool FrustumCulling::ifExists(std::vector<SceneObject*> objects, SceneObject* compareObject)
+{
+	for (int i = 0; i < objects.size(); i++)
+	{
+		if (objects[i] == compareObject)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void FrustumCulling::culling(std::vector<SceneObject*> allObjects, Camera& currentCamera)
 {
@@ -194,20 +206,10 @@ void FrustumCulling::frustumCheck(Camera& currentCamera)
 	{
 		for (int j = 0; j < currentNodes[i]->objects.size(); j++)
 		{
-			//for (int z = 0; z < currentNodes[i]->objects.size(); z++)
-			//{
-			//	bool isThere = false;
-			//	if (currentNodes[i]->objects[j] == currentNodes[i]->objects[i])
-			//	{
-			//		//kolla om objektet inte finns isåfall lägg till
-			//		isThere = true;
-			//	}
-			//	if(!isThere)
-			//	{
-			//		currentScene.push_back(currentNodes[i]->objects[j]);
-			//	}
-			//}
-			currentScene.push_back(currentNodes[i]->objects[j]);
+			if (!ifExists(currentScene, currentNodes[i]->objects[j]))
+			{
+				currentScene.push_back(currentNodes[i]->objects[j]);
+			}
 		}
 	}
 }

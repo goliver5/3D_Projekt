@@ -43,6 +43,7 @@ private:
 	void checkIntersectionAllObjects(Node* rootNode, std::vector<SceneObject*>& allObjects);
 	void checkFrustumIntersectingNodes(Node* node, int depth, DirectX::BoundingFrustum& frustum);
 	void clearTreeRecursive(Node* node, int depth);
+	bool ifExists(std::vector<SceneObject*> objects, SceneObject* compareObject);
 	//std::vector<Node*> getIntersectingNodes(Node* rootnode);
 public:
 	FrustumCulling();
