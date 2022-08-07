@@ -176,12 +176,14 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	float3 lightDirectionV = -normalize(DirLightDirection);
 	float3 diffusmapXD = DiffuseMap[DTid.xy].xyz;
-	float3 diffuseStrength = (diffusmapXD * ((max(dot(currentNormal, lightDirectionV), 0.0f))))*0.3f;
+	float3 diffuseStrength = (diffusmapXD * ((max(dot(currentNormal, lightDirectionV), 0.0f)))) * dirColor; //color last argument
 	float3 refXD = normalize(reflect(DirLightDirection, currentNormal));
 	
 	float3 specColor = SpecularMap[DTid.xy].xyz * pow(max(dot(refXD, -pixelToCam), 0.0f), 25);
 	
 	float3 currentTexture = textureColor[DTid.xy].xyz;
+	
+	//diffuseStrength = diffuseStrength * float3(0.3, 0.3f, 0.0f);
 	
 	diffuseStrength = diffuseStrength * DiffuseMap[DTid.xy].w;
 	specColor *= DiffuseMap[DTid.xy].w;

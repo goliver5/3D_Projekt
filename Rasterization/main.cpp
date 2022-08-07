@@ -186,10 +186,11 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 }
 
-void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode, ParticleSystem& pSystem, FrustumCulling& fCulling)
+void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode, ParticleSystem& pSystem, FrustumCulling& fCulling, DirectionalLight& dirLight)
 {
 	
 	DirectX::XMFLOAT3 camPos;
+	float dirLightColor[3]{ dirLight.getColor().x,dirLight.getColor().y,dirLight.getColor().z };
 	DirectX::XMStoreFloat3(&camPos, camera.getcameraPosition());
 
 
@@ -208,11 +209,13 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 			ImGui::Checkbox("wireFrameMode", &WireFrameMode);
 			//ImGui::Checkbox("Im lazy", &rotation);
 			ImGui::SliderFloat("ParticleSize", &particleSize, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Direction Light Color ", dirLightColor);
 		}
 		ImGui::End();
 	}
 
 	pSystem.setParticleSize(particleSize);
+	dirLight.setColor(dirLightColor[0], dirLightColor[1], dirLightColor[2]);
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -439,7 +442,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, secondCamera, spotlights, dirLight);
 
-			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling);
+			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling, dirLight);
 			
 		}
 		swapChain->Present(0, 0);
