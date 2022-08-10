@@ -19,49 +19,60 @@ bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResource
 	file.open(mtlFileName);
 
 	float NS = 0;
-
+	bool doneReadingFile = false;
 
 	if (file.is_open())
 	{
 		while (!(file.eof()))
 		{
+			if (doneReadingFile)
+			{
+				break;
+			}
+
 			std::getline(file, currentLine);
 
 			std::stringstream currentStringStream(currentLine);
 			std::getline(currentStringStream, myString, ' ');
 			if (myString == "newmtl")// reads mtl
 			{
-				while (!(file.eof()))
+				std::getline(currentStringStream, myString, ' ');
+
+				if(myString == mtlName)
 				{
+					while (!(file.eof()))
+					{
 
-					std::getline(file, currentLine);
+						std::getline(file, currentLine);
 
-					std::stringstream mtlStringStream(currentLine);
-					std::getline(mtlStringStream, myString, ' ');
+						std::stringstream mtlStringStream(currentLine);
+						std::getline(mtlStringStream, myString, ' ');
 
-					if (myString == "map_Ka")
-					{
-						std::getline(mtlStringStream, myString, ' ');
-						createTextures(device, temp_ka, "models/" + myString);
-					}
-					if (myString == "map_Kd")
-					{
-						std::getline(mtlStringStream, myString, ' ');
-						createTextures(device, temp_kd, "models/" + myString);
-					}
-					if (myString == "map_Ks")
-					{
-						std::getline(mtlStringStream, myString, ' ');
-						createTextures(device, temp_ks, "models/" + myString);
-					}
-					if (myString == "Ns")
-					{
-						std::getline(mtlStringStream, myString, ' ');
-						NS = stof(myString);
-					}
-					if (myString == "")
-					{
-						break;
+						if (myString == "map_Ka")
+						{
+							std::getline(mtlStringStream, myString, ' ');
+							createTextures(device, temp_ka, "models/" + myString);
+						}
+						if (myString == "map_Kd")
+						{
+							std::getline(mtlStringStream, myString, ' ');
+							createTextures(device, temp_kd, "models/" + myString);
+						}
+						if (myString == "map_Ks")
+						{
+							std::getline(mtlStringStream, myString, ' ');
+							createTextures(device, temp_ks, "models/" + myString);
+						}
+						if (myString == "Ns")
+						{
+							std::getline(mtlStringStream, myString, ' ');
+							NS = stof(myString);
+						}
+						if (myString == "")
+						{
+							doneReadingFile = true;
+							break;
+						}
 					}
 				}
 			}

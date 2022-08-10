@@ -487,7 +487,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	for (int i = 0; i < allObjectData.size(); i++)
 	{
-		allObjectData[i].noMemoryLeak();
+		allObjectData[i].noMemoryLeaks();
 	}
 
 	ImGui_ImplDX11_Shutdown();

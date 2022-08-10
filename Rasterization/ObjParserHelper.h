@@ -19,7 +19,7 @@ struct objectStruct
 	DirectX::XMFLOAT3 topLeft;
 	DirectX::XMFLOAT3 bottomLeft;
 
-	void noMemoryLeak()
+	void noMemoryLeaks()
 	{
 		for (int i = 0; i < srvs_kd.size(); i++)
 		{

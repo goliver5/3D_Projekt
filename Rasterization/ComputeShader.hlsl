@@ -179,7 +179,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float3 diffuseStrength = (diffusmapXD * ((max(dot(currentNormal, lightDirectionV), 0.0f)))) * dirColor; //color last argument
 	float3 refXD = normalize(reflect(DirLightDirection, currentNormal));
 	
-	float3 specColor = SpecularMap[DTid.xy].xyz * pow(max(dot(refXD, -pixelToCam), 0.0f), 25);
+	float3 specColor = SpecularMap[DTid.xy].xyz * pow(max(dot(refXD, -pixelToCam), 0.0f), 25); //objektets shininess NS
 	
 	float3 currentTexture = textureColor[DTid.xy].xyz;
 	

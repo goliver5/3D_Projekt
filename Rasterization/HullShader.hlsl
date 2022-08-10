@@ -26,6 +26,7 @@ HS_CONSTANT_DATA_OUTPUT ConstantPatchFunction(InputPatch<VertexShaderOutput, 3> 
 {
 	HS_CONSTANT_DATA_OUTPUT output;
 	
+
 	float distance = sqrt((pos.x - inputPatch[0].worldPos.x) * (pos.x - inputPatch[0].worldPos.x) 
 	+ (pos.y - inputPatch[0].worldPos.y) * (pos.y - inputPatch[0].worldPos.y)
 	+ (pos.z - inputPatch[0].worldPos.z) * (pos.z - inputPatch[0].worldPos.z));
