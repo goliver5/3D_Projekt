@@ -190,9 +190,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float3 ambient = AmbientMap[DTid.xy].xyz * 0.2f;
 	
 	//ggr med shadow
-	float3 diffuseSpot = (diffuse * diffuseLevel) * position[DTid.xy].w;//d0
-	float3 diffuseSpot2 = (diffuse2 * diffuseLevel2) * normal[DTid.xy].w;//d1
-	float3 diffuseSpot3 = (diffuse3 * diffuseLevel3) * AmbientMap[DTid.xy].w;//d2
+	float3 diffuseSpot = (diffuse * diffuseLevel * float4(color, 0.0f)) * position[DTid.xy].w; //d0
+	float3 diffuseSpot2 = (diffuse2 * diffuseLevel2 * float4(color2, 0.0f)) * normal[DTid.xy].w; //d1
+	float3 diffuseSpot3 = (diffuse3 * diffuseLevel3 * float4(color3, 0.0f)) * AmbientMap[DTid.xy].w; //d2
 	float3 newshit = (diffuseSpot + diffuseSpot2 + diffuseSpot3 + ambient + diffuseStrength + specColor);
 	
 	float3 newshit2 = (diffuseStrength + specColor);
