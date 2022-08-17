@@ -23,7 +23,7 @@ Camera::Camera()
 
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, DEFAULT_UP);
 	//projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 1011111.0f);
-	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024.f/1024.f, 0.1f, 100.0f);
+	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024.f/1024.f, 0.1f, 200.0f);
 
 	DirectX::XMMATRIX viewProjection = view * projection;
 	viewProjection = DirectX::XMMatrixTranspose(viewProjection);
@@ -226,7 +226,7 @@ void Camera::setLightTemp(ID3D11DeviceContext*& immediateContext)
 
 	view = DirectX::XMMatrixLookAtLH(eyePosition, focusPosition, DEFAULT_UP);
 	//projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1.7f, 1.0f, 1011111.0f);
-	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024.f / 1024.f, 0.1f, 100.0f);
+	projection = DirectX::XMMatrixPerspectiveFovLH(1.0f, 1024.f / 1024.f, 0.1f, 200.0f);
 
 	DirectX::XMMATRIX viewProjection = view * projection;
 	//viewProjection = DirectX::XMMatrixTranspose(viewProjection);

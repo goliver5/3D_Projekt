@@ -192,6 +192,7 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 	static const char* items[]{ "Spot light 1", "Spot light 2" , "Spot light 3" };
 	static int selectedItem = 0;
 	float spotLightColorTEMP[3] = { };
+	float spotLightPosition[3] = { };
 
 	DirectX::XMFLOAT3 camPos;
 	float dirLightColor[3]{ dirLight.getColor().x,dirLight.getColor().y,dirLight.getColor().z };
@@ -201,6 +202,7 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
+	
 	ImGui::NewFrame();
 	{
 		bool begun = ImGui::Begin("Screen Modifiers");
@@ -219,9 +221,13 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 			spotLightColorTEMP[0] = spotlights[selectedItem].getColor().x;
 			spotLightColorTEMP[1] = spotlights[selectedItem].getColor().y;
 			spotLightColorTEMP[2] = spotlights[selectedItem].getColor().z;
+			spotLightPosition[0] = spotlights[selectedItem].getPosition().x;
+			spotLightPosition[1] = spotlights[selectedItem].getPosition().y;
+			spotLightPosition[2] = spotlights[selectedItem].getPosition().z;
 
-			ImGui::ColorEdit3("SpotLight Color ", spotLightColorTEMP);
+			ImGui::DragFloat3("SpotLight Position", spotLightPosition, 0.3f, 0.5f, 0.5f);
 
+			ImGui::ColorEdit3("SpotLight Color ", spotLightColorTEMP);	
 		}
 		ImGui::End();
 	}
@@ -229,6 +235,7 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 	pSystem.setParticleSize(particleSize);
 	dirLight.setColor(dirLightColor[0], dirLightColor[1], dirLightColor[2]);
 
+	spotlights[selectedItem].setPosition(spotLightPosition[0], spotLightPosition[1], spotLightPosition[2]);
 	spotlights[selectedItem].setColor(spotLightColorTEMP[0], spotLightColorTEMP[1], spotLightColorTEMP[2]);
 
 	ImGui::EndFrame();
