@@ -186,13 +186,16 @@ void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, 
 
 }
 
-void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode, ParticleSystem& pSystem, FrustumCulling& fCulling, DirectionalLight& dirLight)
+void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bool& WireFrameMode, ParticleSystem& pSystem, FrustumCulling& fCulling, DirectionalLight& dirLight,
+	std::vector<SpotLight>& spotlights)
 {
-	
+	static const char* items[]{ "Spot light 1", "Spot light 2" , "Spot light 3" };
+	static int selectedItem = 0;
+	float spotLightColorTEMP[3] = { };
+
 	DirectX::XMFLOAT3 camPos;
 	float dirLightColor[3]{ dirLight.getColor().x,dirLight.getColor().y,dirLight.getColor().z };
 	DirectX::XMStoreFloat3(&camPos, camera.getcameraPosition());
-
 
 	float particleSize = pSystem.getParticleSize();
 
@@ -210,12 +213,23 @@ void ImguiFunction(bool &renderParticles, bool &changeCamera, Camera& camera, bo
 			//ImGui::Checkbox("Im lazy", &rotation);
 			ImGui::SliderFloat("ParticleSize", &particleSize, 0.0f, 1.0f);
 			ImGui::ColorEdit3("Direction Light Color ", dirLightColor);
+
+			ImGui::Combo("Select Light", &selectedItem, items, size(items));
+
+			spotLightColorTEMP[0] = spotlights[selectedItem].getColor().x;
+			spotLightColorTEMP[1] = spotlights[selectedItem].getColor().y;
+			spotLightColorTEMP[2] = spotlights[selectedItem].getColor().z;
+
+			ImGui::ColorEdit3("SpotLight Color ", spotLightColorTEMP);
+
 		}
 		ImGui::End();
 	}
 
 	pSystem.setParticleSize(particleSize);
 	dirLight.setColor(dirLightColor[0], dirLightColor[1], dirLightColor[2]);
+
+	spotlights[selectedItem].setColor(spotLightColorTEMP[0], spotLightColorTEMP[1], spotLightColorTEMP[2]);
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -442,7 +456,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				cShader, backBufferUAV, VPcBuffer, camera, currentScene, wow, particleSystem, particleComputeShader, pixelParticleShader,
 				geometryShader, shadowMapping, tesselator, cubeMapping, renderParticles, changeCamera, WireFrameMode, secondCamera, spotlights, dirLight);
 
-			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling, dirLight);
+			ImguiFunction(renderParticles, changeCamera, camera, WireFrameMode, particleSystem, frustumCulling, dirLight, spotlights);
 			
 		}
 		swapChain->Present(0, 0);

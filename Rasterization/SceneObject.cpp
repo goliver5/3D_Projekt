@@ -67,8 +67,6 @@ SceneObject::SceneObject(ID3D11Device *device, ID3D11DeviceContext* immediateCon
     this->NS = objectData.NS;
 
     nsBuffer.Initialize(device, immediateContext);
-    nsBuffer.getData().NS = this->NS;
-    nsBuffer.applyData();
 
 	/*std::vector<float> vertices;
 	std::vector<float> normals;
@@ -221,10 +219,13 @@ void SceneObject::draw(ID3D11DeviceContext*& immediateContext)
     immediateContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
     immediateContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 
-    immediateContext->PSSetConstantBuffers(0, 1, nsBuffer.getReferenceOf());
-
     for (int i = 0; i < vertexSubMeshCounter.size(); i++)
     {
+        nsBuffer.getData().NS = this->NS[i];
+        nsBuffer.applyData();
+
+        immediateContext->PSSetConstantBuffers(0, 1, nsBuffer.getReferenceOf());
+
         immediateContext->PSSetShaderResources(0, 1, &kaSrv[i]);
         immediateContext->PSSetShaderResources(1, 1, &kdSrv[i]);
         immediateContext->PSSetShaderResources(2, 1, &ksSrv[i]);

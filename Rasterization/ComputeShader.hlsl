@@ -70,20 +70,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	float3 currentNormal = normalize(normal[DTid.xy].xyz);
 	
-	//float4 value = textureColor.Load(location);
-	//backBuffer[DTid.xy] =  color;
-	
-		/*int3 location = int3(0, 0, 0);
-	
-	float shadow = textureColor.Load(location).w;
-	
-	location.x = DTid.x;
-	location.y = DTid.y;
-	
-	float3 temp = textureColor[DTid.xy] * shadow;
-	float4 color = float4(temp, 1.0f);*/
-	
-	
 	
 	float4 diffuse = DiffuseMap.Load(location).xyzw;
 	
@@ -106,7 +92,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 			diffuseLevel = pow(max(dot(-lightToPixel, direction), 0.0f), cone);
 			
 			float3 reflection = normalize(reflect(-direction, currentNormal));
-			//specComp = pow(max(dot(reflection, pixelToCam), 0.0f), shinines;
 
 		}
 		
@@ -161,14 +146,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 
 	}
 	
-	//if (range == 500.0f)
-	//{
-	//	backBuffer[DTid.xy] = DiffuseMap[DTid.xy].xyzw;
-	//}
-	//else
-	//{
-	//	backBuffer[DTid.xy] = float4(0.0f, 1.0f, 1.0f,1.0f);
-	//}
 	
 	float3 ambi = float3(0.2f, 0.2f, 0.2f);
 	
@@ -185,8 +162,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	float3 currentTexture = textureColor[DTid.xy].xyz;
 	
-	//diffuseStrength = diffuseStrength * float3(0.3, 0.3f, 0.0f);
-	
 	diffuseStrength = diffuseStrength * DiffuseMap[DTid.xy].w;
 	specColor *= DiffuseMap[DTid.xy].w;
 	specColor *= dirColor;
@@ -200,9 +175,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	float3 newshit2 = (diffuseStrength + specColor);
 	
-	backBuffer[DTid.xy] = float4(newshit, 1.0f);
-	
-	//backBuffer[DTid.xy] = textureColor[DTid.xy].xyzw;
-	
-
+	backBuffer[DTid.xy] = float4(newshit, 1.0f);	
 }

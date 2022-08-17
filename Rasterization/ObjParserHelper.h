@@ -18,7 +18,7 @@ struct objectStruct
 	std::vector<ID3D11ShaderResourceView*> srvs_ks;
 	DirectX::XMFLOAT3 topLeft;
 	DirectX::XMFLOAT3 bottomLeft;
-	float NS;//Shininiess
+	std::vector<float> NS;//Shininiess
 
 	void noMemoryLeaks()
 	{

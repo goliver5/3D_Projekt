@@ -16,7 +16,7 @@ private:
 	std::vector<float>wow;
 	ConstantBufferNew<WMatrix> constantBuffer;
 	ConstantBufferNew<Shiny> nsBuffer;
-	float NS;
+	std::vector<float> NS;
 	DirectX::XMMATRIX world;
 	DirectX::XMMATRIX bbWorldMatrix;
 

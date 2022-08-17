@@ -2,7 +2,7 @@
 # Material Count: 1
 
 newmtl Default
-Ns 500
+Ns 256
 Ka 0.8 0.8 0.8
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
@@ -10,4 +10,4 @@ d 1
 illum 2
 map_Ka Kirby.jpg
 map_Kd Kirby.jpg
-map_Ks Kirby.jpg
+map_Ks White.png

@@ -86,7 +86,7 @@ bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResource
 
 bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
 	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName, ID3D11Device* device, std::vector<ID3D11ShaderResourceView*>& srvs_ka,
-	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks, DirectX::XMFLOAT3& topLeft, DirectX::XMFLOAT3& bottomLeft, float& NS)
+	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks, DirectX::XMFLOAT3& topLeft, DirectX::XMFLOAT3& bottomLeft, std::vector<float>& NS)
 {
 	//plats i vertexForIndex där verticer är likadana
 	//std::vector<int> indices;
@@ -179,12 +179,13 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 				ID3D11ShaderResourceView* temp_ka;
 				ID3D11ShaderResourceView* temp_kd;
 				ID3D11ShaderResourceView* temp_ks;
-
-				readMTL(device,"models/" + fileName + ".mtl", temp_ka, temp_kd, temp_ks, NS, myString);
+				float tempNS;
+				readMTL(device,"models/" + fileName + ".mtl", temp_ka, temp_kd, temp_ks, tempNS, myString);
 
 				srvs_ka.push_back(temp_ka);
 				srvs_kd.push_back(temp_kd);
 				srvs_ks.push_back(temp_ks);
+				NS.push_back(tempNS);
 
 				std::getline(currentStringStream, myString);
 				currentMTL = myString;
