@@ -6,12 +6,10 @@ Texture2DArray depthTexture : register(t3);
 SamplerState testSampler : register(s0);
 SamplerState DepthSampler : register(s1);
 
-cbuffer cBuf : register(b0)
+cbuffer nsBuf : register(b0)
 {
-	float3 dir;
-	float dirPadding;
-	float3 dirColor;
-	float dirPadding2;
+	float NS;
+	float3 padding;
 }
 
 
@@ -68,8 +66,8 @@ PixelShaderOutput main(PixelShaderInput input)
 	float finalSpotLight = d0 * d1 * d2;
 	//float d0 = (depthTexture.Sample(DepthSampler, smTexcoord + float2(0.0f, 0.0f)).r + SHADOW_EPSILON < depth) ? 0.0f : 1.0f;
 	
-	if (d1 <= 0.3)
-		d1 = 0.3f;
+	//if (d1 <= 0.3)
+	//	d1 = 0.3f;
 	
 	float3 texColor = Texture_KA.Sample(testSampler, input.uv);
 	
@@ -78,7 +76,7 @@ PixelShaderOutput main(PixelShaderInput input)
 	
 	
 	
-	float4 color = float4((texColor), d0);
+	float4 color = float4((texColor), NS);
 
 	output.Texture = color;
 	output.Position = float4(input.worldPos.xyz, d0);

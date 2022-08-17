@@ -77,3 +77,9 @@ struct spotLightData
 	DirectX::XMFLOAT3 attenuation;
 	float pad2;
 };
+
+struct Shiny
+{
+	float NS;
+	DirectX::XMFLOAT3 padding;
+};

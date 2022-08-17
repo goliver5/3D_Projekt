@@ -10,7 +10,7 @@
 //#define STB_IMAGE_IMPLEMENTATION
 //#include "stb_image.h"
 
-bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResourceView*& temp_ka, ID3D11ShaderResourceView*& temp_kd, ID3D11ShaderResourceView*& temp_ks,
+bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResourceView*& temp_ka, ID3D11ShaderResourceView*& temp_kd, ID3D11ShaderResourceView*& temp_ks, float &NS,
 	std::string mtlName)
 {
 	std::ifstream file;
@@ -18,7 +18,6 @@ bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResource
 	std::string currentLine;
 	file.open(mtlFileName);
 
-	float NS = 0;
 	bool doneReadingFile = false;
 
 	if (file.is_open())
@@ -79,13 +78,15 @@ bool readMTL(ID3D11Device* device, std::string mtlFileName, ID3D11ShaderResource
 		}
 	}
 
+	file.close();
+
 	return true;
 }
 
 
 bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& uvs, std::vector<VertexData> &vertexForIndex,
 	std::vector<int> &vertexSubMeshCounter, std::vector<int> &indices, string fileName, ID3D11Device* device, std::vector<ID3D11ShaderResourceView*>& srvs_ka,
-	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks, DirectX::XMFLOAT3& topLeft, DirectX::XMFLOAT3& bottomLeft)
+	std::vector<ID3D11ShaderResourceView*>& srvs_kd, std::vector<ID3D11ShaderResourceView*>& srvs_ks, DirectX::XMFLOAT3& topLeft, DirectX::XMFLOAT3& bottomLeft, float& NS)
 {
 	//plats i vertexForIndex där verticer är likadana
 	//std::vector<int> indices;
@@ -179,7 +180,7 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 				ID3D11ShaderResourceView* temp_kd;
 				ID3D11ShaderResourceView* temp_ks;
 
-				readMTL(device,"models/" + fileName + ".mtl", temp_ka, temp_kd, temp_ks, myString);
+				readMTL(device,"models/" + fileName + ".mtl", temp_ka, temp_kd, temp_ks, NS, myString);
 
 				srvs_ka.push_back(temp_ka);
 				srvs_kd.push_back(temp_kd);
@@ -284,6 +285,7 @@ bool ParseOBJFile(std::vector<float>& vertices, std::vector<float>& normals, std
 	{
 		//std::cout << "couldnt Open file\n";
 	}
+	file.close();
 	std::cout << myString;
 	return true;
 }

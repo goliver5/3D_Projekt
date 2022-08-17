@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include <DirectXCollision.h>
 
+
 class SceneObject
 {
 private:
@@ -14,6 +15,8 @@ private:
 	ID3D11Buffer* indexBuffer;
 	std::vector<float>wow;
 	ConstantBufferNew<WMatrix> constantBuffer;
+	ConstantBufferNew<Shiny> nsBuffer;
+	float NS;
 	DirectX::XMMATRIX world;
 	DirectX::XMMATRIX bbWorldMatrix;
 

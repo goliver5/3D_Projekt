@@ -123,7 +123,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float diffuseLevel2 = 0.0f;
 	float specComp2 = 0.0f;
 	
-	if (lightLength2 <= range)
+	if (lightLength2 <= range2)
 	{
 		lightToPixel2 /= lightLength2;
 		float amountLight2 = dot(lightToPixel2, currentNormal);
@@ -147,7 +147,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float diffuseLevel3 = 0.0f;
 	float specComp3 = 0.0f;
 	
-	if (lightLength3 <= range)
+	if (lightLength3 <= range3)
 	{
 		lightToPixel3 /= lightLength3;
 		float amountLight3 = dot(lightToPixel3, currentNormal);
@@ -179,7 +179,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float3 diffuseStrength = (diffusmapXD * ((max(dot(currentNormal, lightDirectionV), 0.0f)))) * dirColor; //color last argument
 	float3 refXD = normalize(reflect(DirLightDirection, currentNormal));
 	
-	float3 specColor = SpecularMap[DTid.xy].xyz * pow(max(dot(refXD, -pixelToCam), 0.0f), 25); //objektets shininess NS
+	float shinyiness = textureColor[DTid.xy].w;
+	
+	float3 specColor = SpecularMap[DTid.xy].xyz * pow(max(dot(refXD, -pixelToCam), 0.0f), shinyiness); //objektets shininess NS
 	
 	float3 currentTexture = textureColor[DTid.xy].xyz;
 	
@@ -187,6 +189,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	
 	diffuseStrength = diffuseStrength * DiffuseMap[DTid.xy].w;
 	specColor *= DiffuseMap[DTid.xy].w;
+	specColor *= dirColor;
 	float3 ambient = AmbientMap[DTid.xy].xyz * 0.2f;
 	
 	//ggr med shadow

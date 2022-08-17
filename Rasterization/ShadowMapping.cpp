@@ -93,10 +93,10 @@ bool ShadowMapping::initiateShadowSampler(ID3D11Device* device)
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samplerDesc.BorderColor[0] = 0.0f;
-	samplerDesc.BorderColor[1] = 0.0f;
-	samplerDesc.BorderColor[2] = 0.0f;
-	samplerDesc.BorderColor[3] = 0.0f;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 1.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
