@@ -37,9 +37,20 @@ bool SetupWindow(HINSTANCE instance, UINT width, UINT height, int nCmdShow, HWND
     wc.hInstance = instance;
     wc.lpszClassName = CLASS_NAME;
 
+    RECT rect = {};
+    rect.left = LONG(GetSystemMetrics(SM_CXSCREEN) * 0.5f - width * 0.5f);
+
+    rect.top = LONG(GetSystemMetrics(SM_CYSCREEN) * 0.5f - height * 0.5f);
+
+    rect.right = rect.left + width;
+    rect.bottom = rect.top + height;
+
+    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+
     RegisterClass(&wc);
 
-    window = CreateWindowEx(0, CLASS_NAME, L"DEMO Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, width, height, nullptr, nullptr, instance, nullptr);
+    window = CreateWindowEx(0, CLASS_NAME, L"DEMO Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
+        nullptr, nullptr, instance, nullptr);
 
     if (window == nullptr)
     {
