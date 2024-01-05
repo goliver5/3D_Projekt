@@ -117,6 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,6 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,6 +172,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="ShadowMapping.cpp" />
+    <ClCompile Include="StructuredBufferSpotLights.cpp" />
     <ClCompile Include="Tesselator.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
@@ -208,6 +211,8 @@
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="ShadowMapping.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="StructureBuffer.h" />
+    <ClInclude Include="StructuredBufferSpotLights.h" />
     <ClInclude Include="Tesselator.h" />
     <ClInclude Include="WindowHelper.h" />
   </ItemGroup>

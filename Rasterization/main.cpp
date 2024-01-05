@@ -34,6 +34,7 @@
 #include "DirectionalLight.h"
 #include "FrustumCulling.h"
 #include "ObjParserHelper.h"
+#include "StructuredBufferSpotLights.h"
 
 void Render(ID3D11DeviceContext* immediateContext, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsView, D3D11_VIEWPORT& viewport,
 	ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* inputLayout,
@@ -365,6 +366,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	CubeMapping cubeMapping(cubeObject, WIDTH, HEIGHT);
 
 	FrustumCulling frustumCulling;
+
+	StructuredBufferSpotLights strSpotLights;
+	if (!strSpotLights.initialize(device, immediateContext)) {
+		return -1;
+	}
+	strSpotLights.addSpotLight(device);
 
 	for (int i = 0; i < 10; i++)
 	{
